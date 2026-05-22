@@ -1,26 +1,195 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================
+   COLISÉE — Design System (Dark)
+   ============================================ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-sf: var(--sf);
+  --color-sf-hover: var(--sf-hover);
+  --color-sf-alt: var(--sf-alt);
+  --color-bd: var(--bd);
+  --color-bd-subtle: var(--bd-subtle);
+  --color-mt: var(--mt);
+  --color-ok: var(--ok);
+  --color-err: var(--err);
+  --color-gld: var(--gld);
+  --color-slv: var(--slv);
+  --color-brz: var(--brz);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-cinzel: var(--font-cinzel);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --bg: #fdfdfd;
+  --fg: #1a1a1a;
+  --sf: #f4f4f5;
+  --sf-hover: #e4e4e7;
+  --sf-alt: #ffffff;
+  --bd: #e4e4e7;
+  --bd-subtle: #f4f4f5;
+  --mt: #71717a;
+  --ok: #22c55e;
+  --err: #ef4444;
+  --gld: #eab308;
+  --slv: #a1a1aa;
+  --brz: #b45309;
+}
+
+.dark {
+  --bg: #1a1a1a;
+  --fg: #e8e8e8;
+  --sf: #242424;
+  --sf-hover: #2e2e2e;
+  --sf-alt: #1e1e1e;
+  --bd: #333333;
+  --bd-subtle: #2a2a2a;
+  --mt: #888888;
+  --ok: #4ade80;
+  --err: #f87171;
+  --gld: #facc15;
+  --slv: #a1a1aa;
+  --brz: #cd7f32;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Tailwind utilities used on body handle the colors now */
 }
+
+::selection {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes vsPulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes eloFlash {
+  0% { opacity: 0; transform: translateY(4px); }
+  50% { opacity: 1; transform: translateY(-2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in { animation: fadeIn 0.4s ease-out both; }
+.animate-fade-in-scale { animation: fadeInScale 0.35s ease-out both; }
+.animate-slide-left { animation: slideLeft 0.5s ease-out both; }
+.animate-slide-right { animation: slideRight 0.5s ease-out both; }
+.animate-vs-pulse { animation: vsPulse 2.5s ease-in-out infinite; }
+.animate-elo-flash { animation: eloFlash 0.35s ease-out both; }
+
+/* ============================================
+   Duel Card
+   ============================================ */
+
+.duel-card {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.duel-card:hover {
+  transform: translateY(-3px);
+  border-color: #555;
+}
+
+.duel-card:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+.duel-card.winner {
+  border-color: #4ade80 !important;
+  box-shadow: 0 0 0 1px #4ade80, 0 8px 24px rgba(74, 222, 128, 0.08);
+}
+
+.duel-card.loser {
+  opacity: 0.35;
+  transform: scale(0.97);
+}
+
+/* ============================================
+   Category Pill
+   ============================================ */
+
+.category-pill { transition: all 0.2s ease; }
+.category-pill:hover { background: #2e2e2e; }
+.category-pill.active { background: #e8e8e8; color: #1a1a1a; }
+
+/* ============================================
+   Leaderboard Row
+   ============================================ */
+
+.lb-row { transition: background 0.15s ease; }
+.lb-row:hover { background: #2e2e2e; }
+
+/* ============================================
+   Skeleton
+   ============================================ */
+
+.skeleton {
+  background: linear-gradient(90deg, #242424 25%, #2e2e2e 50%, #242424 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ============================================
+   Leaflet Overrides
+   ============================================ */
+
+.leaflet-container { background: #1a1a1a !important; }
+.leaflet-popup-content-wrapper {
+  border-radius: 10px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid #333 !important;
+  background: #242424 !important;
+  color: #e8e8e8 !important;
+}
+.leaflet-popup-content { margin: 10px 14px !important; font-size: 13px !important; }
+.leaflet-popup-tip { background: #242424 !important; border: 1px solid #333 !important; }
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #888; }
