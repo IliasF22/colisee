@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Locate, AlertCircle } from "lucide-react";
 import dynamic from "next/dynamic";
-import { MOCK_FASTFOODS } from "@/lib/mock-data";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
+import { useFastFoods } from "@/lib/hooks";
 
 const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
@@ -16,6 +16,7 @@ const MapView = dynamic(() => import("@/components/MapView"), {
 });
 
 export default function CartePage() {
+  const { fastfoods, loading } = useFastFoods();
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -42,7 +43,7 @@ export default function CartePage() {
   };
 
   const center: [number, number] = userLocation || [48.8566, 2.3522];
-  const visibleFastfoods = category === "all" ? MOCK_FASTFOODS : MOCK_FASTFOODS.filter((ff) => ff.category === category);
+  const visibleFastfoods = category === "all" ? fastfoods : fastfoods.filter((ff) => ff.category === category);
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem-2.5rem)]">

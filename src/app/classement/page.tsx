@@ -1,23 +1,24 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Trophy, Search, ChevronUp, ChevronDown, Minus } from "lucide-react";
-import { MOCK_FASTFOODS } from "@/lib/mock-data";
+import { Trophy, Search, ChevronUp, ChevronDown, Minus, Loader2 } from "lucide-react";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
+import { useFastFoods } from "@/lib/hooks";
 
 export default function ClassementPage() {
+  const { fastfoods, loading } = useFastFoods();
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState<FoodCategoryId>("all");
 
   const filtered = useMemo(() => {
-    let list = MOCK_FASTFOODS;
+    let list = fastfoods;
     if (category !== "all") list = list.filter((ff) => ff.category === category);
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       list = list.filter((ff) => ff.name.toLowerCase().includes(q) || ff.chain.toLowerCase().includes(q));
     }
     return [...list].sort((a, b) => b.elo_score - a.elo_score);
-  }, [searchQuery, category]);
+  }, [searchQuery, category, fastfoods]);
 
   const activeCat = FOOD_CATEGORIES.find((c) => c.id === category);
 
@@ -75,7 +76,18 @@ export default function ClassementPage() {
           <span className="text-right">Win%</span>
         </div>
 
-        {filtered.map((ff, i) => {
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-12 text-mt">
+            <Loader2 className="h-6 w-6 mb-2 animate-spin text-mt/50" />
+            <p className="text-sm">Chargement du classement...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-mt">
+            <Trophy className="h-6 w-6 mb-2 opacity-30" />
+            <p className="text-sm">Aucun résultat</p>
+          </div>
+        ) : (
+          filtered.map((ff, i) => {
           const rank = i + 1;
           const winRate = ff.total_matches > 0 ? Math.round((ff.wins / ff.total_matches) * 100) : 0;
           const trend = ff.elo_score >= 1530 ? "up" : ff.elo_score <= 1450 ? "down" : "flat";
@@ -119,14 +131,7 @@ export default function ClassementPage() {
               <span className="text-right font-mono text-[13px]">{winRate}%</span>
             </div>
           );
-        })}
 
-        {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-mt">
-            <Trophy className="h-6 w-6 mb-2 opacity-30" />
-            <p className="text-sm">Aucun résultat</p>
-          </div>
-        )}
         </div>
       </div>
     </div>

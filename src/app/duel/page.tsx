@@ -1,29 +1,41 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { RotateCcw, TrendingUp, TrendingDown, Flame } from "lucide-react";
-import { MOCK_FASTFOODS, getRandomDuel } from "@/lib/mock-data";
+import { useState, useCallback, useEffect } from "react";
+import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2 } from "lucide-react";
+import { getRandomDuel } from "@/lib/duel-utils";
 import { calculateElo } from "@/lib/elo";
 import { FastFood } from "@/lib/types";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
+import { useFastFoods } from "@/lib/hooks";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function DuelPage() {
-  const [fastfoods, setFastfoods] = useState<FastFood[]>(MOCK_FASTFOODS);
+  const { fastfoods, loading } = useFastFoods();
   const [category, setCategory] = useState<FoodCategoryId>("all");
-  const [duel, setDuel] = useState<[FastFood, FastFood]>(() => getRandomDuel(fastfoods));
+  const [duel, setDuel] = useState<[FastFood, FastFood] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [result, setResult] = useState<{ winnerId: string; delta: number } | null>(null);
   const [totalVotes, setTotalVotes] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Initialize duel when data loads
+  useEffect(() => {
+    if (!loading && fastfoods.length >= 2 && !duel) {
+      setDuel(getRandomDuel(fastfoods, category));
+    }
+  }, [loading, fastfoods, duel, category]);
+
   const handleCategoryChange = (cat: FoodCategoryId) => {
     setCategory(cat);
-    setDuel(getRandomDuel(fastfoods, cat));
+    if (!loading && fastfoods.length >= 2) {
+      setDuel(getRandomDuel(fastfoods, cat));
+    }
   };
 
   const handleVote = useCallback(
-    (winnerId: string) => {
-      if (isAnimating) return;
+    async (winnerId: string) => {
+      if (isAnimating || !duel) return;
       setIsAnimating(true);
       setSelectedId(winnerId);
 
@@ -36,18 +48,28 @@ export default function DuelPage() {
         loser.elo_score
       );
 
-      setFastfoods((prev) =>
-        prev.map((ff) => {
-          if (ff.id === winner.id)
-            return { ...ff, elo_score: winnerNewScore, total_matches: ff.total_matches + 1, wins: ff.wins + 1 };
-          if (ff.id === loser.id)
-            return { ...ff, elo_score: loserNewScore, total_matches: ff.total_matches + 1, losses: ff.losses + 1 };
-          return ff;
-        })
-      );
-
       setResult({ winnerId, delta: winnerDelta });
       setTotalVotes((v) => v + 1);
+
+      try {
+        const winnerRef = doc(db, "fastfoods", winner.id);
+        const loserRef = doc(db, "fastfoods", loser.id);
+
+        await Promise.all([
+          updateDoc(winnerRef, {
+            elo_score: winnerNewScore,
+            total_matches: winner.total_matches + 1,
+            wins: winner.wins + 1,
+          }),
+          updateDoc(loserRef, {
+            elo_score: loserNewScore,
+            total_matches: loser.total_matches + 1,
+            losses: loser.losses + 1,
+          }),
+        ]);
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour des scores:", error);
+      }
 
       setTimeout(() => {
         setSelectedId(null);
@@ -60,9 +82,18 @@ export default function DuelPage() {
   );
 
   const handleSkip = useCallback(() => {
-    if (isAnimating) return;
+    if (isAnimating || !fastfoods.length) return;
     setDuel(getRandomDuel(fastfoods, category));
   }, [fastfoods, isAnimating, category]);
+
+  if (loading || !duel) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center text-mt">
+        <Loader2 className="h-8 w-8 mb-4 animate-spin text-mt/50" />
+        <p className="text-sm">Recherche d'adversaires...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-8">
