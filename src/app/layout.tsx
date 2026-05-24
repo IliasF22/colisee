@@ -6,6 +6,8 @@ import { Swords, Trophy, Map as MapIcon } from "lucide-react";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AuthProvider } from "@/lib/AuthContext";
+import { AuthButton } from "@/components/AuthButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,48 +48,44 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-bg text-fg transition-colors duration-200">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {/* Header */}
-          <header className="sticky top-0 z-50 border-b border-bd bg-bg/90 backdrop-blur-md">
-            <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5">
-              <Link href="/" className="flex items-center gap-2.5 group">
-                <Image
-                  src="/images/logo-dark.png"
-                  alt="Colisée"
-                  width={32}
-                  height={32}
-                  className="rounded-md dark:hidden"
-                />
-                <Image
-                  src="/images/logo-light.png"
-                  alt="Colisée"
-                  width={32}
-                  height={32}
-                  className="rounded-md hidden dark:block"
-                />
-                <span className="text-lg font-bold tracking-wider font-cinzel">
-                  Colisée
-                </span>
-              </Link>
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {/* Header */}
+            <header className="sticky top-0 z-50 border-b border-bd bg-bg/90 backdrop-blur-md">
+              <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5">
+                <Link href="/" className="flex items-center gap-2.5 group">
+                  <Image
+                    src="/images/logo-dark.png"
+                    alt="Colisée"
+                    width={56}
+                    height={30}
+                    className="h-7 w-auto dark:invert"
+                  />
+                  <span className="text-lg font-bold tracking-wider font-cinzel">
+                    Colisée
+                  </span>
+                </Link>
 
-              <nav className="flex items-center gap-1 sm:gap-2">
-                {navItems.map(({ href, label, icon: Icon }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] text-mt transition-colors hover:text-fg hover:bg-sf-hover"
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{label}</span>
-                  </Link>
-                ))}
-                <div className="h-4 w-px bg-bd mx-1" />
-                <ThemeToggle />
-              </nav>
-            </div>
-          </header>
+                <nav className="flex items-center gap-1 sm:gap-2">
+                  {navItems.map(({ href, label, icon: Icon }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] text-mt transition-colors hover:text-fg hover:bg-sf-hover"
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">{label}</span>
+                    </Link>
+                  ))}
+                  <div className="h-4 w-px bg-bd mx-1" />
+                  <ThemeToggle />
+                  <div className="h-4 w-px bg-bd mx-1" />
+                  <AuthButton />
+                </nav>
+              </div>
+            </header>
 
-          <main className="flex-1">{children}</main>
+            <main className="flex-1">{children}</main>
 
           <footer className="border-t border-bd">
             <div className="mx-auto flex h-10 max-w-7xl items-center justify-between px-5">
@@ -96,7 +94,8 @@ export default function RootLayout({
             </div>
           </footer>
         </ThemeProvider>
-      </body>
-    </html>
+      </AuthProvider>
+    </body>
+  </html>
   );
 }

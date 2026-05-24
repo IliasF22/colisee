@@ -10,17 +10,9 @@ export default function HomePage() {
           <Image
             src="/images/logo-dark.png"
             alt="Colisée"
-            width={120}
-            height={120}
-            className="rounded-2xl dark:hidden"
-            priority
-          />
-          <Image
-            src="/images/logo-light.png"
-            alt="Colisée"
-            width={120}
-            height={120}
-            className="rounded-2xl hidden dark:block"
+            width={400}
+            height={218}
+            className="h-40 w-auto dark:invert"
             priority
           />
         </div>

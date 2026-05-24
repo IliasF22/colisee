@@ -3,10 +3,8 @@ import { getFirestore, doc, setDoc, Timestamp } from "firebase/firestore";
 import * as dotenv from "dotenv";
 import { resolve } from "path";
 
-// Charger les variables d'environnement depuis .env.local
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
 
-// Configuration Firebase
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -16,33 +14,21 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialisation de Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-console.log("Clé Google Maps chargée (longueur):", GOOGLE_MAPS_API_KEY ? GOOGLE_MAPS_API_KEY.length : "NON DÉFINIE");
 
-// Liste des requêtes de spots à insérer
 const SPOTS_TO_SEED = [
-  // --- SMASH BURGER ---
-  { query: "Dumbo Pigalle, Paris", category: "smash-burger" },
-  { query: "Dumbo Petites-Écuries, Paris", category: "smash-burger" },
-  { query: "Echo, 95 rue d'Aboukir, Paris 2e", category: "smash-burger" },
-  { query: "Buns France, Paris 15e", category: "smash-burger" },
-  { query: "Buns France, Canal de l'Ourcq, Paris 19e", category: "smash-burger" },
-  { query: "Well Done, Paris 19e", category: "smash-burger" },
-  { query: "Le 129, Paris", category: "smash-burger" },
-  { query: "Blend, Paris", category: "smash-burger" },
-  { query: "Pin-Pan, Paris", category: "smash-burger" },
-  { query: "Spécimen, Paris 6e", category: "smash-burger" },
-
-  // --- POULET FRIT ---
-  { query: "Wingstop Bastille, 61 rue du Faubourg-Saint-Antoine", category: "poulet-frit" },
+  { query: "Kcrousty Paris", category: "crousti" },
+  { query: "Tasty Crousty Paris", category: "crousti" },
+  { query: "O'Crousty Paris", category: "crousti" },
+  { query: "Crousti Poulet Paris", category: "crousti" },
+  { query: "Chiko Crousti Paris", category: "crousti" },
 ];
 
 async function fetchGooglePlaceData(query: string) {
-  if (!GOOGLE_MAPS_API_KEY) throw new Error("GOOGLE_MAPS_API_KEY est manquant dans .env.local");
+  if (!GOOGLE_MAPS_API_KEY) throw new Error("GOOGLE_MAPS_API_KEY est manquant");
 
   const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${GOOGLE_MAPS_API_KEY}`;
   
@@ -50,20 +36,18 @@ async function fetchGooglePlaceData(query: string) {
   const data = await response.json();
 
   if (data.status !== "OK" || !data.results || data.results.length === 0) {
-    console.warn(`[ATTENTION] Aucun résultat trouvé pour la requête : "${query}" (Status: ${data.status})`);
+    console.warn(`[ATTENTION] Aucun résultat pour : "${query}"`);
     return null;
   }
 
   const result = data.results[0];
   const placeId = result.place_id;
   
-  // Générer l'URL de la photo si disponible
   let photoUrl = "";
   if (result.photos && result.photos.length > 0) {
     const photoReference = result.photos[0].photo_reference;
     photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
   } else {
-    // URL de fallback si aucune photo
     photoUrl = "https://images.unsplash.com/photo-1550547660-d9450f859349?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
   }
 
@@ -78,26 +62,18 @@ async function fetchGooglePlaceData(query: string) {
 }
 
 async function seedDatabase() {
-  console.log("🚀 Démarrage du script de seed Firebase...");
+  console.log("🚀 Démarrage du seed pour les Crousti...");
   
-  if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
-    console.error("❌ Erreur : Les variables Firebase manquent dans .env.local");
-    return;
-  }
-
   let successCount = 0;
   
   for (const spot of SPOTS_TO_SEED) {
     try {
-      console.log(`\nRecherche de : ${spot.query}...`);
       const placeData = await fetchGooglePlaceData(spot.query);
-      
       if (!placeData) continue;
 
-      // Création de l'objet pour correspondre à notre type 'FastFood' et la demande
       const firestoreData = {
         name: placeData.name,
-        chain: spot.query.split(',')[0].split(' ')[0], // Estimation basique de la chaîne
+        chain: placeData.name,
         category: spot.category,
         image_url: placeData.photo_url,
         location: {
@@ -113,23 +89,22 @@ async function seedDatabase() {
         updated_at: Timestamp.now(),
       };
 
-      // Insertion dans la collection "fastfoods" en utilisant le place_id comme ID de document
-      // pour éviter les doublons si le script est lancé plusieurs fois.
-      const docRef = doc(db, "fastfoods", placeData.place_id);
-      await setDoc(docRef, firestoreData);
+      const docId = `${placeData.place_id}_${spot.category}`;
+      const docRef = doc(db, "fastfoods", docId);
       
-      console.log(`✅ Succès : Inséré "${placeData.name}" dans Firebase.`);
+      await setDoc(docRef, firestoreData, { merge: true });
+      
+      console.log(`✅ Succès : Inséré "${placeData.name}"`);
       successCount++;
       
-      // Petit délai pour ne pas saturer l'API Google
       await new Promise((resolve) => setTimeout(resolve, 300));
       
     } catch (error) {
-      console.error(`❌ Erreur lors du traitement de "${spot.query}":`, error);
+      console.error(`❌ Erreur sur "${spot.query}":`, error);
     }
   }
 
-  console.log(`\n🎉 Seed terminé ! ${successCount}/${SPOTS_TO_SEED.length} spots ont été importés dans Firebase.`);
+  console.log(`\n🎉 Seed terminé ! ${successCount}/${SPOTS_TO_SEED.length} nouveaux Crousti.`);
   process.exit(0);
 }
 

@@ -38,6 +38,8 @@ export interface FastFood {
   category: FoodCategoryId;
   image_url: string;
   location: FastFoodLocation;
+  neighborhood: string;
+  tagline: string;
   elo_score: number;
   total_matches: number;
   wins: number;
