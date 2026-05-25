@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation } from "lucide-react";
 import { getRandomDuel, UserLocation } from "@/lib/duel-utils";
@@ -12,6 +12,19 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function DuelPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center text-mt">
+        <Loader2 className="h-8 w-8 mb-4 animate-spin text-mt/50" />
+        <p className="text-sm">Chargement...</p>
+      </div>
+    }>
+      <DuelContent />
+    </Suspense>
+  );
+}
+
+function DuelContent() {
   const searchParams = useSearchParams();
   const { fastfoods, loading } = useFastFoods();
   const initialCat = (searchParams.get("category") as FoodCategoryId) || "all";
