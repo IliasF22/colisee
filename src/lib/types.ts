@@ -44,6 +44,10 @@ export interface FastFood {
   google_reviews?: number;
   /** Note Google sur 5. Optionnel. */
   google_rating?: number | null;
+  /** true si l'enseigne a plusieurs adresses (franchise / chaîne). */
+  is_franchise?: boolean;
+  /** Nom lisible de la franchise (ex. « Le 129 »). */
+  franchise_name?: string;
   elo_score: number;
   total_matches: number;
   wins: number;

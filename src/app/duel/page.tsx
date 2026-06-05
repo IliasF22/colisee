@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation } from "lucide-react";
+import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation, Store } from "lucide-react";
 import { getRandomDuel } from "@/lib/duel-utils";
 import { useLocationContext } from "@/lib/LocationContext";
 import { calculateElo } from "@/lib/elo";
@@ -289,6 +289,11 @@ function DuelCard({
             {cat.emoji} {cat.label}
           </span>
         )}
+        {fastfood.is_franchise && (
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-[11px] font-semibold text-black bg-gld rounded-md px-2 py-1 shadow-sm">
+            <Store className="h-3 w-3" /> Franchise
+          </span>
+        )}
       </div>
 
       <h3 className="text-lg font-semibold leading-tight">{fastfood.name}</h3>
@@ -348,6 +353,11 @@ function SpotModal({ spot, onClose }: { spot: FastFood; onClose: () => void }) {
             {cat && (
               <span className="absolute bottom-3 left-3 text-[11px] font-medium text-bg bg-fg/90 backdrop-blur-md rounded-md px-2 py-1">
                 {cat.emoji} {cat.label}
+              </span>
+            )}
+            {spot.is_franchise && (
+              <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-[11px] font-semibold text-black bg-gld rounded-md px-2 py-1 shadow-sm">
+                <Store className="h-3 w-3" /> Franchise
               </span>
             )}
           </div>

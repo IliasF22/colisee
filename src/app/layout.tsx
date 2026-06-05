@@ -69,24 +69,26 @@ export default function RootLayout({
                   </span>
                 </Link>
 
-                <HeaderLocation />
-
-                <nav className="flex items-center gap-1 sm:gap-2">
-                  {navItems.map(({ href, label, icon: Icon }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] text-mt transition-colors hover:text-fg hover:bg-sf-hover"
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline">{label}</span>
-                    </Link>
-                  ))}
-                  <div className="h-4 w-px bg-bd mx-1" />
-                  <ThemeToggle />
-                  <div className="h-4 w-px bg-bd mx-1" />
-                  <AuthButton />
-                </nav>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <HeaderLocation />
+                  <div className="h-4 w-px bg-bd hidden sm:block" />
+                  <nav className="flex items-center gap-1 sm:gap-2">
+                    {navItems.map(({ href, label, icon: Icon }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] text-mt transition-colors hover:text-fg hover:bg-sf-hover"
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">{label}</span>
+                      </Link>
+                    ))}
+                    <div className="h-4 w-px bg-bd mx-1" />
+                    <ThemeToggle />
+                    <div className="h-4 w-px bg-bd mx-1" />
+                    <AuthButton />
+                  </nav>
+                </div>
               </div>
             </header>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Trophy, Search, ChevronUp, ChevronDown, Minus, Loader2, MapPin, Navigation } from "lucide-react";
+import { Trophy, Search, ChevronUp, ChevronDown, Minus, Loader2, MapPin, Navigation, Store } from "lucide-react";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
 import { useFastFoods } from "@/lib/hooks";
 import { FastFood } from "@/lib/types";
@@ -241,7 +241,14 @@ export default function ClassementPage() {
                   {ff.chain.charAt(0)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium truncate">{ff.name}</p>
+                  <p className="text-[13px] font-medium truncate flex items-center gap-1.5">
+                    <span className="truncate">{ff.name}</span>
+                    {ff.is_franchise && (
+                      <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-gld px-1 py-px text-[10px] font-semibold text-black">
+                        <Store className="h-2.5 w-2.5" /> Franchise
+                      </span>
+                    )}
+                  </p>
                   <p className="text-[11px] text-mt truncate">
                     {ff.neighborhood || ff.chain}
                     {cat && (
