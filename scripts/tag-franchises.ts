@@ -42,17 +42,29 @@ function queryName(name: string, address: string): string {
   const cityTok = new Set(normalize(cityFromAddress(address)).split(" ").filter(Boolean));
   return normalize(name).split(" ").filter((t) => t && !cityTok.has(t) && !/^([1-9]|1[0-9]|20)$/.test(t)).join(" ");
 }
-function brandTokens(qn: string): string[] {
-  return qn.split(" ").filter((t) => t && !STOP.has(t) && !GENERIC.has(t));
-}
 function isDistinctive(tokens: string[]): boolean {
   return tokens.length > 0 && tokens.some((t) => /\d/.test(t) || t.length >= 4);
 }
-// Marque assez distinctive pour être une franchise (exclut les mots communs à token unique).
-function isFranchiseKey(tokens: string[]): boolean {
-  if (!isDistinctive(tokens)) return false;
-  if (tokens.length === 1 && DENY.has(tokens[0])) return false;
-  return true;
+
+/**
+ * Clé de marque pour regrouper les franchises.
+ * On retire d'abord les mots de catégorie (« crousty », « burger »…). Mais si ça
+ * ne laisse rien d'exploitable (vide, ou un seul mot trop commun comme « tasty »),
+ * on retombe sur le nom complet (« tasty crousty ») pour rester précis.
+ */
+function franchiseKey(name: string, address: string): string {
+  const qn = queryName(name, address);
+  const full = qn.split(" ").filter((t) => t && !STOP.has(t));
+  const stripped = full.filter((t) => !GENERIC.has(t));
+  const strippedOk = isDistinctive(stripped) && !(stripped.length === 1 && DENY.has(stripped[0]));
+  const base = strippedOk ? stripped : full;
+
+  if (base.length >= 2) return base.join(" ");
+  if (base.length === 1) {
+    const t = base[0];
+    if (/\d/.test(t) || (t.length >= 4 && !DENY.has(t))) return t;
+  }
+  return "";
 }
 function titleCase(s: string): string {
   return s.split(" ").map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w)).join(" ");
@@ -70,11 +82,9 @@ function titleCase(s: string): string {
       rows.push({ id: d.id, name: x.name, cur: !!x.is_franchise, key: "", qn: "" });
       return;
     }
-    const qn = queryName(x.name || "", x.location.address);
-    const tokens = brandTokens(qn);
-    const key = isFranchiseKey(tokens) ? tokens.join(" ") : "";
+    const key = franchiseKey(x.name || "", x.location.address);
     if (key) counts.set(key, (counts.get(key) || 0) + 1);
-    rows.push({ id: d.id, name: x.name, cur: !!x.is_franchise, key, qn });
+    rows.push({ id: d.id, name: x.name, cur: !!x.is_franchise, key, qn: titleCase(key) });
   });
 
   const franchiseKeys = new Set([...counts.entries()].filter(([, n]) => n >= 2).map(([k]) => k));

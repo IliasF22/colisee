@@ -8,11 +8,19 @@ export default function HomePage() {
       <div className="flex flex-col items-center text-center max-w-xl animate-fade-in">
         <div className="relative mb-8">
           <Image
-            src="/images/logo-dark.png"
+            src="/images/logo-noir.png"
             alt="Colisée"
-            width={400}
-            height={218}
-            className="h-40 w-auto dark:invert"
+            width={256}
+            height={256}
+            className="h-40 w-auto dark:hidden"
+            priority
+          />
+          <Image
+            src="/images/logo-blanc.png"
+            alt="Colisée"
+            width={256}
+            height={256}
+            className="hidden h-40 w-auto dark:block"
             priority
           />
         </div>

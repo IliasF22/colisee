@@ -10,6 +10,7 @@ import { AuthProvider } from "@/lib/AuthContext";
 import { AuthButton } from "@/components/AuthButton";
 import { LocationProvider } from "@/lib/LocationContext";
 import { HeaderLocation } from "@/components/HeaderLocation";
+import { MobileNav } from "@/components/MobileNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,24 +56,36 @@ export default function RootLayout({
             <LocationProvider>
             {/* Header */}
             <header className="sticky top-0 z-50 border-b border-bd bg-bg/90 backdrop-blur-md">
-              <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-5">
-                <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-                  <Image
-                    src="/images/logo-dark.png"
-                    alt="Colisée"
-                    width={56}
-                    height={30}
-                    className="h-7 w-auto dark:invert"
-                  />
-                  <span className="hidden sm:inline text-lg font-bold tracking-wider font-cinzel">
-                    Colisée
-                  </span>
-                </Link>
+              <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-4 sm:px-5">
+                {/* Gauche : menu mobile (dépliable) + logo */}
+                <div className="flex items-center gap-2">
+                  <MobileNav />
+                  <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+                    {/* Logo noir en mode clair, blanc en mode sombre */}
+                    <Image
+                      src="/images/logo-noir.png"
+                      alt="Colisée"
+                      width={64}
+                      height={64}
+                      className="h-7 w-auto dark:hidden"
+                    />
+                    <Image
+                      src="/images/logo-blanc.png"
+                      alt="Colisée"
+                      width={64}
+                      height={64}
+                      className="hidden h-7 w-auto dark:block"
+                    />
+                    <span className="hidden sm:inline text-lg font-bold tracking-wider font-cinzel">
+                      Colisée
+                    </span>
+                  </Link>
+                </div>
 
+                {/* Droite : localisation + (nav desktop) + auth */}
                 <div className="flex items-center gap-2 sm:gap-3">
                   <HeaderLocation />
-                  <div className="h-4 w-px bg-bd hidden sm:block" />
-                  <nav className="flex items-center gap-1 sm:gap-2">
+                  <nav className="hidden sm:flex items-center gap-1 sm:gap-2 border-l border-bd pl-2 sm:pl-3">
                     {navItems.map(({ href, label, icon: Icon }) => (
                       <Link
                         key={href}
@@ -80,14 +93,16 @@ export default function RootLayout({
                         className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] text-mt transition-colors hover:text-fg hover:bg-sf-hover"
                       >
                         <Icon className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">{label}</span>
+                        <span>{label}</span>
                       </Link>
                     ))}
-                    <div className="h-4 w-px bg-bd mx-1" />
-                    <ThemeToggle />
-                    <div className="h-4 w-px bg-bd mx-1" />
-                    <AuthButton />
                   </nav>
+                  <div className="hidden sm:block h-4 w-px bg-bd" />
+                  <div className="hidden sm:block">
+                    <ThemeToggle />
+                  </div>
+                  <div className="hidden sm:block h-4 w-px bg-bd" />
+                  <AuthButton />
                 </div>
               </div>
             </header>
