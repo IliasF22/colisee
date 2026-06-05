@@ -40,6 +40,10 @@ export interface FastFood {
   location: FastFoodLocation;
   neighborhood: string;
   tagline: string;
+  /** Nombre d'avis Google (popularité). Optionnel : absent sur les anciens docs. */
+  google_reviews?: number;
+  /** Note Google sur 5. Optionnel. */
+  google_rating?: number | null;
   elo_score: number;
   total_matches: number;
   wins: number;

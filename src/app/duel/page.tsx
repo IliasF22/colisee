@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation } from "lucide-react";
-import { getRandomDuel, UserLocation } from "@/lib/duel-utils";
+import { getRandomDuel } from "@/lib/duel-utils";
+import { useLocationContext } from "@/lib/LocationContext";
 import { calculateElo } from "@/lib/elo";
 import { FastFood } from "@/lib/types";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
@@ -35,22 +36,21 @@ function DuelContent() {
   const [totalVotes, setTotalVotes] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [inspectedSpot, setInspectedSpot] = useState<FastFood | null>(null);
-  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
-  const [nearbyMode, setNearbyMode] = useState(false);
-
-  useEffect(() => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setNearbyMode(true);
-      },
-      () => {},
-      { enableHighAccuracy: false, timeout: 5000 }
-    );
-  }, []);
+  const { userLocation, zone } = useLocationContext();
+  const [nearbyMode, setNearbyMode] = useState(true);
+  const locationAppliedRef = useRef(false);
 
   const activeLocation = nearbyMode ? userLocation : null;
+
+  // Dès que la position arrive (après le 1er duel éventuellement tiré au hasard),
+  // on régénère un duel borné à la zone de l'utilisateur — une seule fois.
+  useEffect(() => {
+    if (!userLocation || !nearbyMode || locationAppliedRef.current) return;
+    if (!loading && fastfoods.length >= 2) {
+      locationAppliedRef.current = true;
+      setDuel(getRandomDuel(fastfoods, category, userLocation));
+    }
+  }, [userLocation, nearbyMode, loading, fastfoods, category]);
 
   // Initialize duel when data loads
   useEffect(() => {
@@ -160,7 +160,7 @@ function DuelContent() {
             }`}
           >
             <Navigation className="h-3 w-3" />
-            À proximité
+            {nearbyMode && zone ? zone.label : "À proximité"}
           </button>
         )}
         {FOOD_CATEGORIES.map((cat) => (

@@ -87,6 +87,8 @@ export default function ProposerPage() {
       address: place.formattedAddress,
       lat: place.location?.lat(),
       lng: place.location?.lng(),
+      google_reviews: place.userRatingCount ?? place.user_ratings_total ?? 0,
+      google_rating: place.rating ?? null,
     });
   }, [getPicker]);
 

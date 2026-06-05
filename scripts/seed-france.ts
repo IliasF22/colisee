@@ -145,6 +145,8 @@ async function fetchGooglePlaceData(query: string) {
     lat: result.geometry.location.lat,
     lng: result.geometry.location.lng,
     photo_url: photoUrl,
+    google_reviews: result.user_ratings_total ?? 0,
+    google_rating: result.rating ?? null,
   };
 }
 
@@ -175,6 +177,8 @@ async function seedDatabase() {
         },
         neighborhood,
         tagline,
+        google_reviews: place.google_reviews,
+        google_rating: place.google_rating,
         elo_score: 1500,
         total_matches: 0,
         wins: 0,

@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthProvider } from "@/lib/AuthContext";
 import { AuthButton } from "@/components/AuthButton";
+import { LocationProvider } from "@/lib/LocationContext";
+import { HeaderLocation } from "@/components/HeaderLocation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,10 +52,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-bg text-fg transition-colors duration-200">
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <LocationProvider>
             {/* Header */}
             <header className="sticky top-0 z-50 border-b border-bd bg-bg/90 backdrop-blur-md">
-              <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5">
-                <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-5">
+                <Link href="/" className="flex items-center gap-2.5 group shrink-0">
                   <Image
                     src="/images/logo-dark.png"
                     alt="Colisée"
@@ -61,10 +64,12 @@ export default function RootLayout({
                     height={30}
                     className="h-7 w-auto dark:invert"
                   />
-                  <span className="text-lg font-bold tracking-wider font-cinzel">
+                  <span className="hidden sm:inline text-lg font-bold tracking-wider font-cinzel">
                     Colisée
                   </span>
                 </Link>
+
+                <HeaderLocation />
 
                 <nav className="flex items-center gap-1 sm:gap-2">
                   {navItems.map(({ href, label, icon: Icon }) => (
@@ -93,6 +98,7 @@ export default function RootLayout({
               <p className="text-[11px] text-mt font-mono">v0.2.0</p>
             </div>
           </footer>
+            </LocationProvider>
         </ThemeProvider>
       </AuthProvider>
     </body>
