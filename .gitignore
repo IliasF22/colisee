@@ -43,3 +43,6 @@ next-env.d.ts
 # local tooling & scratch
 .claude/
 /test_places.ts
+
+# purge scan output
+scripts/.purge-list.json

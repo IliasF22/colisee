@@ -142,7 +142,7 @@ function DuelContent() {
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
           <h1 className="text-2xl font-bold font-cinzel tracking-wide">L&apos;Arène</h1>
-          <span className="inline-flex items-center gap-1 rounded-md bg-sf px-2 py-0.5 text-[11px] text-mt border border-bd">
+          <span className="inline-flex items-center gap-1 rounded-md bg-gld/10 px-2 py-0.5 text-[11px] text-gld border border-gld/40">
             <Flame className="h-3 w-3" />
             {totalVotes} vote{totalVotes !== 1 ? "s" : ""}
           </span>
@@ -205,8 +205,8 @@ function DuelContent() {
               </button>
             </div>
 
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-bd bg-sf animate-vs-pulse shrink-0">
-              <span className="font-mono text-sm font-bold text-mt">VS</span>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gld/50 bg-gld/10 animate-vs-pulse shrink-0">
+              <span className="font-mono text-sm font-bold text-gld">VS</span>
             </div>
 
             <div className="flex flex-col w-full flex-1">

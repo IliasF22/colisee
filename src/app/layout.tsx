@@ -60,23 +60,24 @@ export default function RootLayout({
                 {/* Gauche : menu mobile (dépliable) + logo */}
                 <div className="flex items-center gap-2">
                   <MobileNav />
-                  <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+                  {/* Logo masqué sur mobile, un peu plus grand sur desktop */}
+                  <Link href="/" className="hidden sm:flex items-center gap-2.5 group shrink-0">
                     {/* Logo noir en mode clair, blanc en mode sombre */}
                     <Image
                       src="/images/logo-noir.png"
                       alt="Colisée"
                       width={64}
                       height={64}
-                      className="h-7 w-auto dark:hidden"
+                      className="h-9 w-auto dark:hidden"
                     />
                     <Image
                       src="/images/logo-blanc.png"
                       alt="Colisée"
                       width={64}
                       height={64}
-                      className="hidden h-7 w-auto dark:block"
+                      className="hidden h-9 w-auto dark:block"
                     />
-                    <span className="hidden sm:inline text-lg font-bold tracking-wider font-cinzel">
+                    <span className="text-lg font-bold tracking-wider font-cinzel">
                       Colisée
                     </span>
                   </Link>

@@ -33,7 +33,9 @@ export function MobileNav() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between">
-              <span className="font-cinzel text-lg font-bold tracking-wider">Colisée</span>
+              <Link href="/" onClick={() => setOpen(false)} className="font-cinzel text-lg font-bold tracking-wider">
+                Colisée
+              </Link>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Fermer le menu"

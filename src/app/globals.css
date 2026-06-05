@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* La variante `dark:` suit la classe `.dark` (pilotée par next-themes),
+   pas le prefers-color-scheme de l'OS — sinon désync logo/thème. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================
    COLISÉE — Design System (Dark)
    ============================================ */
