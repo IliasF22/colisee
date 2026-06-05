@@ -48,6 +48,8 @@ export interface FastFood {
   is_franchise?: boolean;
   /** Nom lisible de la franchise (ex. « Le 129 »). */
   franchise_name?: string;
+  /** true = masqué de l'app (entrée qui n'est pas un fast-food). */
+  hidden?: boolean;
   elo_score: number;
   total_matches: number;
   wins: number;

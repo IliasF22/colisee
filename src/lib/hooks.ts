@@ -18,7 +18,8 @@ export function useFastFoods() {
       (snapshot) => {
         const data: FastFood[] = [];
         snapshot.forEach((doc) => {
-          data.push({ id: doc.id, ...doc.data() } as FastFood);
+          const ff = { id: doc.id, ...doc.data() } as FastFood;
+          if (!ff.hidden) data.push(ff); // on masque les entrées non-fast-food
         });
         setFastfoods(data);
         setLoading(false);
