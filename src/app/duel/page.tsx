@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation, Store } from "lucide-react";
+import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation, Store, Crown } from "lucide-react";
 import { getRandomDuel } from "@/lib/duel-utils";
 import { useLocationContext } from "@/lib/LocationContext";
 import { calculateElo } from "@/lib/elo";
@@ -79,6 +79,7 @@ function DuelContent() {
       if (isAnimating || !duel) return;
       setIsAnimating(true);
       setSelectedId(winnerId);
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([12, 30, 18]);
 
       const [a, b] = duel;
       const winner = a.id === winnerId ? a : b;
@@ -278,6 +279,11 @@ function DuelCard({
         side === "left" ? "animate-slide-left" : "animate-slide-right"
       } ${isWinner ? "winner" : isLoser ? "loser" : "border-bd hover:border-mt transition-colors"}`}
     >
+      {isWinner && (
+        <div className="crown-badge pointer-events-none absolute -top-5 left-1/2 z-20">
+          <Crown className="h-9 w-9 text-gld drop-shadow-[0_2px_10px_rgba(250,204,21,0.6)]" fill="currentColor" />
+        </div>
+      )}
       <div className="relative h-28 sm:h-48 w-full mb-2 sm:mb-4 shrink-0 rounded-lg overflow-hidden bg-sf-alt border border-bd-subtle">
         <img 
           src={fastfood.image_url} 

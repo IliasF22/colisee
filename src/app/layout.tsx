@@ -11,6 +11,7 @@ import { AuthButton } from "@/components/AuthButton";
 import { LocationProvider } from "@/lib/LocationContext";
 import { HeaderLocation } from "@/components/HeaderLocation";
 import { MobileNav } from "@/components/MobileNav";
+import { ClickRipple } from "@/components/ClickRipple";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,6 +56,7 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <LocationProvider>
+            <ClickRipple />
             {/* Header */}
             <header className="sticky top-0 z-50 border-b border-bd bg-bg/90 backdrop-blur-md">
               <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-4 sm:px-5">

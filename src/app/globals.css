@@ -145,13 +145,28 @@ body {
 }
 
 .duel-card.winner {
-  border-color: #4ade80 !important;
-  box-shadow: 0 0 0 1px #4ade80, 0 8px 24px rgba(74, 222, 128, 0.08);
+  border-color: #facc15 !important;
+  box-shadow: 0 0 0 2px #facc15, 0 0 45px rgba(250, 204, 21, 0.35), 0 12px 30px rgba(250, 204, 21, 0.15);
+  transform: translateY(-4px) scale(1.04);
+  z-index: 10;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .duel-card.loser {
-  opacity: 0.35;
-  transform: scale(0.97);
+  opacity: 0.22;
+  transform: scale(0.88);
+  filter: grayscale(0.5);
+}
+
+/* Couronne du gagnant */
+@keyframes crownDrop {
+  0% { opacity: 0; transform: translate(-50%, -42px) scale(0.4) rotate(-28deg); }
+  55% { opacity: 1; transform: translate(-50%, 6px) scale(1.18) rotate(10deg); }
+  75% { transform: translate(-50%, -2px) scale(0.96) rotate(-4deg); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1) rotate(0deg); }
+}
+.crown-badge {
+  animation: crownDrop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 /* ============================================
@@ -203,3 +218,37 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #888; }
+
+/* ============================================
+   Drawer mobile (hamburger)
+   ============================================ */
+
+@keyframes drawerIn  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes drawerOut { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes backdropIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes backdropOut { from { opacity: 1; } to { opacity: 0; } }
+
+.animate-drawer-in   { animation: drawerIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-drawer-out  { animation: drawerOut 0.25s cubic-bezier(0.55, 0, 1, 0.45) both; }
+.animate-backdrop-in  { animation: backdropIn 0.25s ease both; }
+.animate-backdrop-out { animation: backdropOut 0.22s ease both; }
+
+/* ============================================
+   Ripple global au clic (doré)
+   ============================================ */
+
+@keyframes rippleExpand {
+  0%   { transform: scale(0); opacity: 0.55; }
+  100% { transform: scale(16); opacity: 0; }
+}
+.global-ripple {
+  position: fixed;
+  pointer-events: none;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.55) 0%, rgba(234, 179, 8, 0) 70%);
+  z-index: 9999;
+  animation: rippleExpand 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}

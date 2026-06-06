@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Menu, X, Swords, Trophy, Map as MapIcon, Lightbulb } from "lucide-react";
@@ -15,6 +15,16 @@ const items = [
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  // Ferme avec l'animation de sortie avant de démonter.
+  const close = useCallback(() => {
+    setClosing(true);
+    window.setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+    }, 240);
+  }, []);
 
   return (
     <div className="sm:hidden">
@@ -27,18 +37,18 @@ export function MobileNav() {
       </button>
 
       {open && createPortal(
-        <div className="fixed inset-0 z-[60] sm:hidden" onClick={() => setOpen(false)}>
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div className="fixed inset-0 z-[60] sm:hidden" onClick={close}>
+          <div className={`absolute inset-0 bg-black/50 backdrop-blur-sm ${closing ? "animate-backdrop-out" : "animate-backdrop-in"}`} />
           <div
-            className="absolute left-0 top-0 flex h-full w-64 flex-col border-r border-bd bg-bg p-5 shadow-xl"
+            className={`absolute left-0 top-0 flex h-full w-64 flex-col border-r border-bd bg-bg p-5 shadow-2xl ${closing ? "animate-drawer-out" : "animate-drawer-in"}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between">
-              <Link href="/" onClick={() => setOpen(false)} className="font-cinzel text-lg font-bold tracking-wider">
+              <Link href="/" onClick={close} className="font-cinzel text-lg font-bold tracking-wider">
                 Colisée
               </Link>
               <button
-                onClick={() => setOpen(false)}
+                onClick={close}
                 aria-label="Fermer le menu"
                 className="flex h-8 w-8 items-center justify-center rounded-md text-mt transition-colors hover:bg-sf-hover hover:text-fg"
               >
@@ -51,7 +61,7 @@ export function MobileNav() {
                 <Link
                   key={href}
                   href={href}
-                  onClick={() => setOpen(false)}
+                  onClick={close}
                   className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-mt transition-colors hover:bg-sf-hover hover:text-fg"
                 >
                   <Icon className="h-4 w-4" />
