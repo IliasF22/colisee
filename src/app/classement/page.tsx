@@ -206,7 +206,7 @@ export default function ClassementPage() {
 
       {/* Table */}
       <div className="overflow-hidden rounded-xl border border-bd">
-        <div className="grid grid-cols-[40px_1fr_72px_72px_72px] items-center gap-2 border-b border-bd bg-sf-alt px-4 py-2.5 text-[11px] font-medium text-mt uppercase tracking-wider">
+        <div className="grid grid-cols-[28px_1fr_60px_48px] sm:grid-cols-[40px_1fr_72px_72px_72px] items-center gap-2 border-b border-bd bg-sf-alt px-4 py-2.5 text-[11px] font-medium text-mt uppercase tracking-wider">
           <span>Rang</span>
           <span>Fast-food</span>
           <span className="text-right">Score</span>
@@ -234,7 +234,7 @@ export default function ClassementPage() {
           return (
             <div
               key={ff.id}
-              className="lb-row grid grid-cols-[40px_1fr_72px_72px_72px] items-center gap-2 border-b border-bd-subtle px-4 py-3 last:border-b-0"
+              className="lb-row grid grid-cols-[28px_1fr_60px_48px] sm:grid-cols-[40px_1fr_72px_72px_72px] items-center gap-2 border-b border-bd-subtle px-4 py-3 last:border-b-0"
             >
               <span className={`font-mono text-sm font-bold ${
                 rank === 1 ? "text-gld" : rank === 2 ? "text-slv" : rank === 3 ? "text-brz" : "text-mt"
