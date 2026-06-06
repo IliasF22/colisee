@@ -220,33 +220,52 @@ export default function ClassementPage() {
         ) : (
           filtered.map((ff, i) => {
           const rank = i + 1;
+          const cat = FOOD_CATEGORIES.find((c) => c.id === ff.category);
 
           return (
             <button
               key={ff.id}
               onClick={() => setSelected(ff)}
-              className="lb-row w-full flex items-center gap-3 border-b border-bd-subtle px-4 py-3.5 last:border-b-0 text-left"
+              className="lb-row w-full flex items-center gap-2.5 border-b border-bd-subtle px-4 py-3 last:border-b-0 text-left"
             >
-              <span className={`w-7 shrink-0 text-center font-mono text-sm font-bold ${
+              <span className={`w-6 shrink-0 text-center font-mono text-sm font-bold ${
                 rank === 1 ? "text-gld" : rank === 2 ? "text-slv" : rank === 3 ? "text-brz" : "text-mt"
               }`}>
                 {rank}
               </span>
 
-              <div className="min-w-0 flex-1 flex items-center gap-1.5">
-                <span className="text-[14px] font-medium truncate">{ff.name}</span>
-                {ff.is_franchise && (
-                  <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-gld px-1 py-px text-[10px] font-semibold text-black">
-                    <Store className="h-2.5 w-2.5" /> Franchise
-                  </span>
-                )}
+              <div
+                className="flex h-8 min-w-9 shrink-0 items-center justify-center rounded-md bg-sf-alt border border-bd-subtle px-1.5 font-mono text-[11px] font-bold"
+                title={`Niveau de prix : ${"€".repeat(priceLvl(ff))}`}
+              >
+                <span className="text-gld">{"€".repeat(priceLvl(ff))}</span>
+                <span className="text-mt/25">{"€".repeat(3 - priceLvl(ff))}</span>
               </div>
 
-              {viewMode === "nearby" && userLocation && (
-                <span className="shrink-0 text-[11px] text-mt/70 font-mono">
-                  {distanceKm(userLocation.lat, userLocation.lng, ff.location.latitude, ff.location.longitude).toFixed(1)} km
-                </span>
-              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-medium truncate flex items-center gap-1.5">
+                  <span className="truncate">{ff.name}</span>
+                  {ff.is_franchise && (
+                    <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-gld px-1 py-px text-[10px] font-semibold text-black">
+                      <Store className="h-2.5 w-2.5" /> Franchise
+                    </span>
+                  )}
+                </p>
+                <p className="text-[11px] text-mt truncate">
+                  {ff.neighborhood || ff.chain}
+                  {cat && (
+                    <span className="ml-1.5 inline-flex items-center gap-0.5 rounded bg-sf border border-bd-subtle px-1 py-px text-[10px]">
+                      {cat.emoji} {viewMode !== "category" && cat.label}
+                    </span>
+                  )}
+                  {viewMode === "nearby" && userLocation && (
+                    <span className="ml-1.5 text-[10px] text-mt/70">
+                      {distanceKm(userLocation.lat, userLocation.lng, ff.location.latitude, ff.location.longitude).toFixed(1)} km
+                    </span>
+                  )}
+                </p>
+              </div>
+
               <ChevronRight className="h-4 w-4 shrink-0 text-mt/40" />
             </button>
           );
