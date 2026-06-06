@@ -7,20 +7,11 @@
  *   npx tsx scripts/hide-nonfood.ts          # SCAN (lecture seule) → liste + fichier
  *   npx tsx scripts/hide-nonfood.ts --apply  # applique hidden=true (depuis le fichier)
  */
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, setDoc, doc, Timestamp } from "firebase/firestore";
-import * as dotenv from "dotenv";
 import { resolve } from "path";
+import { getAdminDb, Timestamp, getDocs, setDoc, collection, doc } from "./_admin-db.js";
+const db = getAdminDb();
 import { readFileSync, writeFileSync, existsSync } from "fs";
 
-dotenv.config({ path: resolve(process.cwd(), ".env.local") });
-
-const app = initializeApp({
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-});
-const db = getFirestore(app);
 const KEY = process.env.GOOGLE_MAPS_API_KEY;
 const APPLY = process.argv.includes("--apply");
 const LIST_FILE = resolve(process.cwd(), "scripts/.hide-list.json");

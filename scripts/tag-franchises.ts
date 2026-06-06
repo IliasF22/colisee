@@ -5,19 +5,9 @@
  *   npx tsx scripts/tag-franchises.ts            # aperçu
  *   npx tsx scripts/tag-franchises.ts --write    # applique
  */
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, updateDoc, doc, Timestamp } from "firebase/firestore";
-import * as dotenv from "dotenv";
-import { resolve } from "path";
 
-dotenv.config({ path: resolve(process.cwd(), ".env.local") });
-
-const app = initializeApp({
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-});
-const db = getFirestore(app);
+import { getAdminDb, Timestamp, getDocs, updateDoc, collection, doc } from "./_admin-db.js";
+const db = getAdminDb();
 const WRITE = process.argv.includes("--write");
 
 const STOP = new Set(["le", "la", "les", "l", "du", "de", "des", "d", "the", "et", "a", "au", "aux", "restaurant", "resto", "chez", "by"]);

@@ -8,20 +8,11 @@
  *   npx tsx scripts/purge-nonfood.ts            # SCAN (lecture seule) → écrit la liste + l'affiche
  *   npx tsx scripts/purge-nonfood.ts --delete   # supprime les entrées de la liste
  */
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import * as dotenv from "dotenv";
 import { resolve } from "path";
+import { getAdminDb, Timestamp, getDocs, collection, doc, deleteDoc} from "./_admin-db.js";
+const db = getAdminDb();
 import { readFileSync, writeFileSync, existsSync } from "fs";
 
-dotenv.config({ path: resolve(process.cwd(), ".env.local") });
-
-const app = initializeApp({
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-});
-const db = getFirestore(app);
 const KEY = process.env.GOOGLE_MAPS_API_KEY;
 const DELETE = process.argv.includes("--delete");
 const LIST_FILE = resolve(process.cwd(), "scripts/.purge-list.json");

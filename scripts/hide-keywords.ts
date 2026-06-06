@@ -3,18 +3,9 @@
  *   npx tsx scripts/hide-keywords.ts          # aperçu
  *   npx tsx scripts/hide-keywords.ts --apply  # masque
  */
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, setDoc, doc, Timestamp } from "firebase/firestore";
-import * as dotenv from "dotenv";
-import { resolve } from "path";
 
-dotenv.config({ path: resolve(process.cwd(), ".env.local") });
-const app = initializeApp({
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-});
-const db = getFirestore(app);
+import { getAdminDb, Timestamp, getDocs, setDoc, collection, doc } from "./_admin-db.js";
+const db = getAdminDb();
 const APPLY = process.argv.includes("--apply");
 
 const KEYWORDS = ["patisserie", "buffet", "mami louise"];

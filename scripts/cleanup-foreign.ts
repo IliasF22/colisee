@@ -7,19 +7,9 @@
  *   npx tsx scripts/cleanup-foreign.ts            # aperçu (ne supprime rien)
  *   npx tsx scripts/cleanup-foreign.ts --confirm  # supprime réellement
  */
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import * as dotenv from "dotenv";
-import { resolve } from "path";
 
-dotenv.config({ path: resolve(process.cwd(), ".env.local") });
-
-const app = initializeApp({
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-});
-const db = getFirestore(app);
+import { getAdminDb, Timestamp, getDocs, collection, doc, deleteDoc} from "./_admin-db.js";
+const db = getAdminDb();
 const CONFIRM = process.argv.includes("--confirm");
 
 // Marqueurs de pays / DOM étrangers (normalisés). Amiens (France) n'en contient aucun → conservé.
