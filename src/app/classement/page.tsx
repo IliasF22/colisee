@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Trophy, Search, ChevronUp, ChevronDown, Minus, Loader2, MapPin, Navigation, Store } from "lucide-react";
+import { Trophy, Search, Loader2, MapPin, Navigation, Store, ChevronRight, X, ExternalLink } from "lucide-react";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
 import { useFastFoods } from "@/lib/hooks";
 import { FastFood } from "@/lib/types";
@@ -42,6 +42,7 @@ export default function ClassementPage() {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationAsked, setLocationAsked] = useState(false);
+  const [selected, setSelected] = useState<FastFood | null>(null);
 
   useEffect(() => {
     if (locationAsked || typeof navigator === "undefined" || !navigator.geolocation) return;
@@ -204,16 +205,8 @@ export default function ClassementPage() {
         />
       </div>
 
-      {/* Table */}
+      {/* Liste */}
       <div className="overflow-hidden rounded-xl border border-bd">
-        <div className="grid grid-cols-[28px_1fr_60px_48px] sm:grid-cols-[40px_1fr_72px_72px_72px] items-center gap-2 border-b border-bd bg-sf-alt px-4 py-2.5 text-[11px] font-medium text-mt uppercase tracking-wider">
-          <span>Rang</span>
-          <span>Fast-food</span>
-          <span className="text-right">Score</span>
-          <span className="text-right hidden sm:block">Votes</span>
-          <span className="text-right">Win%</span>
-        </div>
-
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 text-mt">
             <Loader2 className="h-6 w-6 mb-2 animate-spin text-mt/50" />
@@ -227,70 +220,146 @@ export default function ClassementPage() {
         ) : (
           filtered.map((ff, i) => {
           const rank = i + 1;
-          const winRate = ff.total_matches > 0 ? Math.round((ff.wins / ff.total_matches) * 100) : 0;
-          const trend = ff.elo_score >= 1530 ? "up" : ff.elo_score <= 1450 ? "down" : "flat";
-          const cat = FOOD_CATEGORIES.find((c) => c.id === ff.category);
 
           return (
-            <div
+            <button
               key={ff.id}
-              className="lb-row grid grid-cols-[28px_1fr_60px_48px] sm:grid-cols-[40px_1fr_72px_72px_72px] items-center gap-2 border-b border-bd-subtle px-4 py-3 last:border-b-0"
+              onClick={() => setSelected(ff)}
+              className="lb-row w-full flex items-center gap-3 border-b border-bd-subtle px-4 py-3.5 last:border-b-0 text-left"
             >
-              <span className={`font-mono text-sm font-bold ${
+              <span className={`w-7 shrink-0 text-center font-mono text-sm font-bold ${
                 rank === 1 ? "text-gld" : rank === 2 ? "text-slv" : rank === 3 ? "text-brz" : "text-mt"
               }`}>
                 {rank}
               </span>
 
-              <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className="flex h-8 min-w-9 shrink-0 items-center justify-center rounded-md bg-sf-alt border border-bd-subtle px-1.5 font-mono text-[11px] font-bold"
-                  title={`Niveau de prix : ${"€".repeat(priceLvl(ff))}`}
-                >
-                  <span className="text-gld">{"€".repeat(priceLvl(ff))}</span>
-                  <span className="text-mt/25">{"€".repeat(3 - priceLvl(ff))}</span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium truncate flex items-center gap-1.5">
-                    <span className="truncate">{ff.name}</span>
-                    {ff.is_franchise && (
-                      <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-gld px-1 py-px text-[10px] font-semibold text-black">
-                        <Store className="h-2.5 w-2.5" /> Franchise
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-[11px] text-mt truncate">
-                    {ff.neighborhood || ff.chain}
-                    {cat && (
-                      <span className="ml-1.5 inline-flex items-center gap-0.5 rounded bg-sf border border-bd-subtle px-1 py-px text-[10px]">
-                        {cat.emoji} {viewMode !== "category" && cat.label}
-                      </span>
-                    )}
-                    {viewMode === "nearby" && userLocation && (
-                      <span className="ml-1.5 text-[10px] text-mt/70">
-                        {distanceKm(userLocation.lat, userLocation.lng, ff.location.latitude, ff.location.longitude).toFixed(1)} km
-                      </span>
-                    )}
-                  </p>
-                </div>
+              <div className="min-w-0 flex-1 flex items-center gap-1.5">
+                <span className="text-[14px] font-medium truncate">{ff.name}</span>
+                {ff.is_franchise && (
+                  <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-gld px-1 py-px text-[10px] font-semibold text-black">
+                    <Store className="h-2.5 w-2.5" /> Franchise
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-center justify-end gap-1">
-                {trend === "up" && <ChevronUp className="h-3 w-3 text-ok" />}
-                {trend === "down" && <ChevronDown className="h-3 w-3 text-err" />}
-                {trend === "flat" && <Minus className="h-3 w-3 text-mt/30" />}
-                <span className="font-mono text-[13px] font-bold">{ff.elo_score}</span>
-              </div>
-
-              <span className="text-right font-mono text-[13px] text-mt hidden sm:block">
-                {ff.total_matches.toLocaleString()}
-              </span>
-
-              <span className="text-right font-mono text-[13px]">{winRate}%</span>
-            </div>
+              {viewMode === "nearby" && userLocation && (
+                <span className="shrink-0 text-[11px] text-mt/70 font-mono">
+                  {distanceKm(userLocation.lat, userLocation.lng, ff.location.latitude, ff.location.longitude).toFixed(1)} km
+                </span>
+              )}
+              <ChevronRight className="h-4 w-4 shrink-0 text-mt/40" />
+            </button>
           );
         })
         )}
+        </div>
+      </div>
+
+      {selected && (
+        <SpotModal spot={selected} userLocation={userLocation} onClose={() => setSelected(null)} />
+      )}
+    </div>
+  );
+}
+
+function SpotModal({
+  spot,
+  userLocation,
+  onClose,
+}: {
+  spot: FastFood;
+  userLocation: { lat: number; lng: number } | null;
+  onClose: () => void;
+}) {
+  const winRate = spot.total_matches > 0 ? Math.round((spot.wins / spot.total_matches) * 100) : 0;
+  const cat = FOOD_CATEGORIES.find((c) => c.id === spot.category);
+  const lvl = priceLvl(spot);
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${spot.name} ${spot.location?.address || ""}`
+  )}`;
+  const dist =
+    userLocation && spot.location
+      ? distanceKm(userLocation.lat, userLocation.lng, spot.location.latitude, spot.location.longitude)
+      : null;
+
+  const stats = [
+    { label: "Score Elo", value: spot.elo_score },
+    { label: "Win %", value: `${winRate}%` },
+    { label: "Votes", value: spot.total_matches },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative z-10 w-full max-w-md rounded-t-2xl sm:rounded-2xl border border-bd bg-bg overflow-hidden animate-slide-up"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {spot.image_url && (
+          <div className="relative h-48 w-full">
+            <img src={spot.image_url} alt={spot.name} className="h-full w-full object-cover" />
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            {spot.is_franchise && (
+              <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-md bg-gld px-2 py-1 text-[11px] font-semibold text-black shadow-sm">
+                <Store className="h-3 w-3" /> Franchise
+              </span>
+            )}
+            {cat && (
+              <span className="absolute bottom-3 left-3 rounded-md bg-fg/90 px-2 py-1 text-[11px] font-medium text-bg backdrop-blur-md">
+                {cat.emoji} {cat.label}
+              </span>
+            )}
+          </div>
+        )}
+
+        <div className="p-5 space-y-4">
+          <div>
+            <h2 className="text-xl font-bold leading-tight">{spot.name}</h2>
+            <p className="mt-1 text-sm text-mt">
+              {spot.neighborhood}
+              {dist !== null && <span className="text-mt/70"> · {dist.toFixed(1)} km</span>}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {stats.map((s) => (
+              <div key={s.label} className="rounded-lg bg-sf border border-bd-subtle px-2 py-2 text-center">
+                <span className="block text-base font-bold font-mono">{s.value}</span>
+                <span className="text-[10px] text-mt uppercase tracking-wider">{s.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg bg-sf border border-bd-subtle px-3 py-2">
+            <span className="text-[12px] text-mt">Niveau de prix</span>
+            <span className="font-mono text-sm font-bold">
+              <span className="text-gld">{"€".repeat(lvl)}</span>
+              <span className="text-mt/25">{"€".repeat(3 - lvl)}</span>
+            </span>
+          </div>
+
+          {spot.location?.address && <p className="text-[13px] text-mt">{spot.location.address}</p>}
+
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-fg px-4 py-2.5 text-sm font-medium text-bg transition-transform hover:scale-[1.02]"
+          >
+            <ExternalLink className="h-4 w-4" />
+            Ouvrir sur Google Maps
+          </a>
+          <button
+            onClick={onClose}
+            className="flex w-full items-center justify-center rounded-lg border border-bd px-4 py-2 text-sm font-medium text-mt hover:bg-sf-hover hover:text-fg transition-colors"
+          >
+            Fermer
+          </button>
         </div>
       </div>
     </div>
