@@ -1,0 +1,69 @@
+rules_version = '2';
+
+// ============================================================
+//  Colisée — Firestore Security Rules
+// ============================================================
+//  Admin email : thefrejman@gmail.com
+//  Principe :
+//   - fastfoods   : lecture publique
+//                   vote anonyme (Elo uniquement)
+//                   écriture admin libre
+//   - submissions : création authentifiée + lecture/MAJ admin
+//   - reports     : création authentifiée + lecture/MAJ admin
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------
+    //  Helpers
+    // -------------------------------------------------------
+
+    function isAdmin() {
+      return request.auth != null
+          && request.auth.token.email == "thefrejman@gmail.com";
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Seuls les champs Elo sont modifiables par un vote anonyme.
+    function isEloUpdate() {
+      let allowed = ["elo_score", "total_matches", "wins", "losses", "updated_at"];
+      return request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(allowed);
+    }
+
+    // -------------------------------------------------------
+    //  Collection : fastfoods
+    // -------------------------------------------------------
+    match /fastfoods/{docId} {
+      // Lecture publique (app, carte, classement, duel)
+      allow read: if true;
+
+      // Vote anonyme : uniquement les champs Elo
+      allow update: if isEloUpdate();
+
+      // Création / suppression / mise à jour complète : admin
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin();
+    }
+
+    // -------------------------------------------------------
+    //  Collection : submissions (propositions de l'utilisateur)
+    // -------------------------------------------------------
+    match /submissions/{docId} {
+      allow create: if isAuthenticated();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------
+    //  Collection : reports (signalements de l'utilisateur)
+    // -------------------------------------------------------
+    match /reports/{docId} {
+      allow create: if isAuthenticated();
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

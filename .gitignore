@@ -44,6 +44,10 @@ next-env.d.ts
 .claude/
 /test_places.ts
 
+# firebase admin (NE JAMAIS COMMITTER)
+*-service-account*.json
+*firebase-adminsdk*.json
+
 # purge scan output
 scripts/.purge-list.json
 scripts/.hide-list.json
