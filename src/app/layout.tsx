@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cinzel } from "next/font/google";
 import Link from "next/link";
 import Image from "next/image";
-import { Swords, Trophy, Map as MapIcon } from "lucide-react";
+import { Swords, Trophy, Map as MapIcon, Lightbulb } from "lucide-react";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -37,6 +37,7 @@ const navItems = [
   { href: "/duel", label: "L'Arène", icon: Swords },
   { href: "/classement", label: "Classement", icon: Trophy },
   { href: "/carte", label: "Carte", icon: MapIcon },
+  { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
 ];
 
 export default function RootLayout({

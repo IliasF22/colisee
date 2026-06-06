@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Menu, X, Swords, Trophy, Map as MapIcon } from "lucide-react";
+import { Menu, X, Swords, Trophy, Map as MapIcon, Lightbulb } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 const items = [
   { href: "/duel", label: "L'Arène", icon: Swords },
   { href: "/classement", label: "Classement", icon: Trophy },
   { href: "/carte", label: "Carte", icon: MapIcon },
+  { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
 ];
 
 export function MobileNav() {

@@ -137,9 +137,9 @@ function DuelContent() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-5 py-8">
+    <div className="mx-auto max-w-5xl px-5 py-4 sm:py-8">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-3 sm:mb-6">
         <div className="flex items-center gap-3 mb-1">
           <h1 className="text-2xl font-bold font-cinzel tracking-wide">L&apos;Arène</h1>
           <span className="inline-flex items-center gap-1 rounded-md bg-gld/10 px-2 py-0.5 text-[11px] text-gld border border-gld/40">
@@ -147,11 +147,11 @@ function DuelContent() {
             {totalVotes} vote{totalVotes !== 1 ? "s" : ""}
           </span>
         </div>
-        <p className="text-sm text-mt">Qui mérite la couronne ? Cliquez sur votre favori.</p>
+        <p className="hidden sm:block text-sm text-mt">Qui mérite la couronne ? Cliquez sur votre favori.</p>
       </div>
 
       {/* Nearby toggle + Categories */}
-      <div className="flex items-center gap-1.5 mb-8 overflow-x-auto pb-1">
+      <div className="flex items-center gap-1.5 mb-4 sm:mb-8 overflow-x-auto pb-1">
         {userLocation && (
           <button
             onClick={toggleNearby}
@@ -186,7 +186,7 @@ function DuelContent() {
         </div>
       ) : (
         <>
-          <div className="relative flex flex-col items-center gap-6 lg:flex-row lg:gap-4">
+          <div className="relative flex flex-col items-center gap-3 sm:gap-6 lg:flex-row lg:gap-4">
             <div className="flex flex-col w-full flex-1">
               <DuelCard
                 fastfood={duel[0]}
@@ -198,15 +198,15 @@ function DuelContent() {
               />
               <button
                 onClick={() => setInspectedSpot(duel[0])}
-                className="mt-2 self-center flex items-center gap-1 text-[11px] text-mt/60 hover:text-mt transition-colors"
+                className="mt-1.5 sm:mt-2 self-center flex items-center gap-1 text-[11px] text-mt/60 hover:text-mt transition-colors"
               >
                 <HelpCircle className="h-3 w-3" />
                 Je ne connais pas ce spot
               </button>
             </div>
 
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gld/50 bg-gld/10 animate-vs-pulse shrink-0">
-              <span className="font-mono text-sm font-bold text-gld">VS</span>
+            <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-gld/50 bg-gld/10 animate-vs-pulse shrink-0">
+              <span className="font-mono text-xs sm:text-sm font-bold text-gld">VS</span>
             </div>
 
             <div className="flex flex-col w-full flex-1">
@@ -220,7 +220,7 @@ function DuelContent() {
               />
               <button
                 onClick={() => setInspectedSpot(duel[1])}
-                className="mt-2 self-center flex items-center gap-1 text-[11px] text-mt/60 hover:text-mt transition-colors"
+                className="mt-1.5 sm:mt-2 self-center flex items-center gap-1 text-[11px] text-mt/60 hover:text-mt transition-colors"
               >
                 <HelpCircle className="h-3 w-3" />
                 Je ne connais pas ce spot
@@ -229,7 +229,7 @@ function DuelContent() {
           </div>
 
           {/* Skip */}
-          <div className="mt-8 flex justify-center">
+          <div className="mt-4 sm:mt-8 flex justify-center">
             <button
               onClick={handleSkip}
               disabled={isAnimating}
@@ -274,11 +274,11 @@ function DuelCard({
   return (
     <button
       onClick={onClick}
-      className={`duel-card flex flex-col w-full flex-1 rounded-xl border bg-sf p-5 text-left ${
+      className={`duel-card flex flex-col w-full flex-1 rounded-xl border bg-sf p-3 sm:p-5 text-left ${
         side === "left" ? "animate-slide-left" : "animate-slide-right"
       } ${isWinner ? "winner" : isLoser ? "loser" : "border-bd hover:border-mt transition-colors"}`}
     >
-      <div className="relative h-48 w-full mb-4 shrink-0 rounded-lg overflow-hidden bg-sf-alt border border-bd-subtle">
+      <div className="relative h-28 sm:h-48 w-full mb-2 sm:mb-4 shrink-0 rounded-lg overflow-hidden bg-sf-alt border border-bd-subtle">
         <img 
           src={fastfood.image_url} 
           alt={fastfood.name} 
@@ -296,12 +296,12 @@ function DuelCard({
         )}
       </div>
 
-      <h3 className="text-lg font-semibold leading-tight">{fastfood.name}</h3>
-      <p className="mt-1 text-[12px] text-mt">
+      <h3 className="text-base sm:text-lg font-semibold leading-tight line-clamp-1 sm:line-clamp-2">{fastfood.name}</h3>
+      <p className="mt-0.5 sm:mt-1 text-[11px] sm:text-[12px] text-mt truncate">
         {fastfood.neighborhood || fastfood.location.address}
       </p>
 
-      <div className="mt-5 grid grid-cols-3 gap-2">
+      <div className="mt-3 sm:mt-5 hidden sm:grid grid-cols-3 gap-2">
         {[
           { label: "Elo", value: fastfood.elo_score },
           { label: "Matchs", value: fastfood.total_matches },

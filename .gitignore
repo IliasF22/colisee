@@ -47,3 +47,4 @@ next-env.d.ts
 # purge scan output
 scripts/.purge-list.json
 scripts/.hide-list.json
+scripts/.restaurants-list.json
