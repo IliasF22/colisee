@@ -6,6 +6,12 @@ import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
 import { useFastFoods } from "@/lib/hooks";
 import { FastFood } from "@/lib/types";
 
+/** Niveau de prix affiché (1..3). Défaut €€ (10-20 €) quand Google ne l'indique pas. */
+function priceLvl(ff: FastFood): number {
+  const lvl = ff.price_level ?? 0;
+  return lvl > 0 ? Math.min(lvl, 3) : 2;
+}
+
 function extractCity(address: string): string {
   const parts = address.split(",").map((s) => s.trim());
   if (parts.length >= 2) {
@@ -237,8 +243,12 @@ export default function ClassementPage() {
               </span>
 
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-sf-alt border border-bd-subtle font-mono text-xs font-bold text-mt">
-                  {ff.chain.charAt(0)}
+                <div
+                  className="flex h-8 min-w-9 shrink-0 items-center justify-center rounded-md bg-sf-alt border border-bd-subtle px-1.5 font-mono text-[11px] font-bold"
+                  title={`Niveau de prix : ${"€".repeat(priceLvl(ff))}`}
+                >
+                  <span className="text-gld">{"€".repeat(priceLvl(ff))}</span>
+                  <span className="text-mt/25">{"€".repeat(3 - priceLvl(ff))}</span>
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-medium truncate flex items-center gap-1.5">

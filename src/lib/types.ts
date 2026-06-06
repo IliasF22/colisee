@@ -50,6 +50,8 @@ export interface FastFood {
   franchise_name?: string;
   /** true = masqué de l'app (entrée qui n'est pas un fast-food). */
   hidden?: boolean;
+  /** Niveau de prix Google (1=€, 2=€€, 3=€€€). null/absent = inconnu → €€ par défaut. */
+  price_level?: number | null;
   elo_score: number;
   total_matches: number;
   wins: number;
