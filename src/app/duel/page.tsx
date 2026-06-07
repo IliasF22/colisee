@@ -26,13 +26,28 @@ export default function DuelPage() {
   );
 }
 
-// Duel "vedette" affiché en premier dans la catégorie Général : Le 129 vs Tasty Crousty
-// (on prend l'antenne la plus connue de chaque enseigne).
+// Duels "vedette" affichés en Général (rotation aléatoire). On prend l'antenne
+// la plus connue de chaque enseigne.
+const FEATURED_MATCHUPS: [string, string][] = [
+  ["129", "tasty crous"],
+  ["pepe chicken", "tasty crous"],
+  ["pepe chicken", "129"],
+  ["popeyes", "pepe chicken"],
+];
+function fNorm(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(new RegExp("[\\u0300-\\u036f]", "g"), "");
+}
 function findFeatured(fastfoods: FastFood[]): [FastFood, FastFood] | null {
   const byReviews = (a: FastFood, b: FastFood) => (b.google_reviews ?? 0) - (a.google_reviews ?? 0);
-  const le129 = fastfoods.filter((ff) => /\b129\b/.test(ff.name)).sort(byReviews)[0];
-  const tasty = fastfoods.filter((ff) => /tasty\s*crous/i.test(ff.name)).sort(byReviews)[0];
-  return le129 && tasty && le129.id !== tasty.id ? [le129, tasty] : null;
+  const best = (sub: string) => fastfoods.filter((ff) => fNorm(ff.name).includes(sub)).sort(byReviews)[0];
+  const valid: [FastFood, FastFood][] = [];
+  for (const [a, b] of FEATURED_MATCHUPS) {
+    const x = best(a);
+    const y = best(b);
+    if (x && y && x.id !== y.id) valid.push([x, y]);
+  }
+  if (!valid.length) return null;
+  return valid[Math.floor(Math.random() * valid.length)];
 }
 
 function DuelContent() {
