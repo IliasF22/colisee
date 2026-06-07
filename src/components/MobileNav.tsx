@@ -3,8 +3,9 @@
 import { useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Menu, X, Swords, Trophy, Map as MapIcon, Lightbulb } from "lucide-react";
+import { Menu, X, Swords, Trophy, Map as MapIcon, Lightbulb, LogOut, LogIn, Plus } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { useAuth } from "@/lib/AuthContext";
 
 const items = [
   { href: "/duel", label: "L'Arène", icon: Swords },
@@ -14,6 +15,7 @@ const items = [
 ];
 
 export function MobileNav() {
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
 
@@ -70,9 +72,40 @@ export function MobileNav() {
               ))}
             </nav>
 
-            <div className="mt-auto flex items-center justify-between border-t border-bd pt-4">
-              <span className="text-xs text-mt">Thème</span>
-              <ThemeToggle />
+            <div className="mt-auto space-y-2 border-t border-bd pt-4">
+              {user ? (
+                <>
+                  <div className="px-1 pb-1">
+                    <p className="truncate text-sm font-medium">{user.displayName || "Connecté"}</p>
+                    {user.email && <p className="truncate text-[11px] text-mt">{user.email}</p>}
+                  </div>
+                  <Link
+                    href="/proposer"
+                    onClick={close}
+                    className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-mt transition-colors hover:bg-sf-hover hover:text-fg"
+                  >
+                    <Plus className="h-4 w-4" /> Proposer une adresse
+                  </Link>
+                  <button
+                    onClick={() => { logout(); close(); }}
+                    className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-err transition-colors hover:bg-err/10"
+                  >
+                    <LogOut className="h-4 w-4" /> Se déconnecter
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={close}
+                  className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-fg transition-colors hover:bg-sf-hover"
+                >
+                  <LogIn className="h-4 w-4" /> Se connecter
+                </Link>
+              )}
+              <div className="flex items-center justify-between px-1 pt-1">
+                <span className="text-xs text-mt">Thème</span>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>,
