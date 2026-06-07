@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useLocationContext } from "@/lib/LocationContext";
 import { Trophy, Search, Loader2, MapPin, Navigation, Store, ChevronRight, X, ExternalLink, Lock, Swords, PartyPopper } from "lucide-react";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
 import { useFastFoods } from "@/lib/hooks";
@@ -42,11 +43,11 @@ export default function ClassementPage() {
   const [category, setCategory] = useState<FoodCategoryId>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("category");
   const [selectedCity, setSelectedCity] = useState<string>("all");
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationAsked, setLocationAsked] = useState(false);
+  const { userLocation } = useLocationContext();
   const [selected, setSelected] = useState<FastFood | null>(null);
   const [duelsDone, setDuelsDone] = useState(0);
   const [justUnlocked, setJustUnlocked] = useState(false);
+  const nearbySwitchedRef = useRef(false);
 
   useEffect(() => {
     setDuelsDone(getDuelsDone());
@@ -57,18 +58,13 @@ export default function ClassementPage() {
     }
   }, []);
 
+  // Quand une localisation (ville ou GPS) est définie, on bascule une fois en « À proximité ».
   useEffect(() => {
-    if (locationAsked || typeof navigator === "undefined" || !navigator.geolocation) return;
-    setLocationAsked(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setViewMode("nearby");
-      },
-      () => {},
-      { enableHighAccuracy: false, timeout: 5000 }
-    );
-  }, [locationAsked]);
+    if (userLocation && !nearbySwitchedRef.current) {
+      nearbySwitchedRef.current = true;
+      setViewMode("nearby");
+    }
+  }, [userLocation]);
 
   const cities = useMemo(() => {
     const citySet = new Set<string>();

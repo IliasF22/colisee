@@ -46,7 +46,7 @@ function DuelContent() {
   const [totalVotes, setTotalVotes] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [inspectedSpot, setInspectedSpot] = useState<FastFood | null>(null);
-  const { userLocation, zone } = useLocationContext();
+  const { userLocation, label } = useLocationContext();
   const [nearbyMode, setNearbyMode] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
   const locationAppliedRef = useRef(false);
@@ -187,7 +187,7 @@ function DuelContent() {
             }`}
           >
             <Navigation className="h-3 w-3" />
-            {nearbyMode && zone ? zone.label : "À proximité"}
+            {nearbyMode && label ? label : "À proximité"}
           </button>
         )}
         {FOOD_CATEGORIES.map((cat) => (
