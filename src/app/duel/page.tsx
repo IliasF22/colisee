@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation, Store, Crown } from "lucide-react";
+import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation, Store, Crown, Star } from "lucide-react";
 import { getRandomDuel } from "@/lib/duel-utils";
 import { useLocationContext } from "@/lib/LocationContext";
 import { calculateElo } from "@/lib/elo";
@@ -25,6 +25,15 @@ export default function DuelPage() {
   );
 }
 
+// Duel "vedette" affiché en premier dans la catégorie Général : Le 129 vs Tasty Crousty
+// (on prend l'antenne la plus connue de chaque enseigne).
+function findFeatured(fastfoods: FastFood[]): [FastFood, FastFood] | null {
+  const byReviews = (a: FastFood, b: FastFood) => (b.google_reviews ?? 0) - (a.google_reviews ?? 0);
+  const le129 = fastfoods.filter((ff) => /\b129\b/.test(ff.name)).sort(byReviews)[0];
+  const tasty = fastfoods.filter((ff) => /tasty\s*crous/i.test(ff.name)).sort(byReviews)[0];
+  return le129 && tasty && le129.id !== tasty.id ? [le129, tasty] : null;
+}
+
 function DuelContent() {
   const searchParams = useSearchParams();
   const { fastfoods, loading } = useFastFoods();
@@ -38,23 +47,30 @@ function DuelContent() {
   const [inspectedSpot, setInspectedSpot] = useState<FastFood | null>(null);
   const { userLocation, zone } = useLocationContext();
   const [nearbyMode, setNearbyMode] = useState(true);
+  const [isFeatured, setIsFeatured] = useState(false);
   const locationAppliedRef = useRef(false);
 
   const activeLocation = nearbyMode ? userLocation : null;
 
-  // Dès que la position arrive (après le 1er duel éventuellement tiré au hasard),
-  // on régénère un duel borné à la zone de l'utilisateur — une seule fois.
+  // Dès que la position arrive, on régénère un duel borné à la zone — une seule fois.
+  // Sauf si le duel courant est la vedette : on la garde.
   useEffect(() => {
     if (!userLocation || !nearbyMode || locationAppliedRef.current) return;
     if (!loading && fastfoods.length >= 2) {
       locationAppliedRef.current = true;
+      if (isFeatured) return;
       setDuel(getRandomDuel(fastfoods, category, userLocation));
     }
-  }, [userLocation, nearbyMode, loading, fastfoods, category]);
+  }, [userLocation, nearbyMode, loading, fastfoods, category, isFeatured]);
 
-  // Initialize duel when data loads
+  // Initialise le duel au chargement — en Général : le duel vedette d'abord.
   useEffect(() => {
     if (!loading && fastfoods.length >= 2 && !duel) {
+      if (category === "all") {
+        const f = findFeatured(fastfoods);
+        if (f) { setIsFeatured(true); setDuel(f); return; }
+      }
+      setIsFeatured(false);
       setDuel(getRandomDuel(fastfoods, category, activeLocation));
     }
   }, [loading, fastfoods, duel, category, activeLocation]);
@@ -62,6 +78,11 @@ function DuelContent() {
   const handleCategoryChange = (cat: FoodCategoryId) => {
     setCategory(cat);
     if (!loading && fastfoods.length >= 2) {
+      if (cat === "all") {
+        const f = findFeatured(fastfoods);
+        if (f) { setIsFeatured(true); setDuel(f); return; }
+      }
+      setIsFeatured(false);
       setDuel(getRandomDuel(fastfoods, cat, activeLocation));
     }
   };
@@ -70,6 +91,7 @@ function DuelContent() {
     const next = !nearbyMode;
     setNearbyMode(next);
     if (!loading && fastfoods.length >= 2) {
+      setIsFeatured(false);
       setDuel(getRandomDuel(fastfoods, category, next ? userLocation : null));
     }
   };
@@ -117,6 +139,7 @@ function DuelContent() {
         setSelectedId(null);
         setResult(null);
         setIsAnimating(false);
+        setIsFeatured(false);
         setDuel(getRandomDuel(fastfoods, category, activeLocation));
       }, 1200);
     },
@@ -125,6 +148,7 @@ function DuelContent() {
 
   const handleSkip = useCallback(() => {
     if (isAnimating || !fastfoods.length) return;
+    setIsFeatured(false);
     setDuel(getRandomDuel(fastfoods, category, activeLocation));
   }, [fastfoods, isAnimating, category, activeLocation]);
 
@@ -187,6 +211,13 @@ function DuelContent() {
         </div>
       ) : (
         <>
+          {isFeatured && (
+            <div className="mb-4 flex justify-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-gld/40 bg-gld/10 px-3.5 py-1 text-[12px] font-semibold text-gld">
+                <Star className="h-3.5 w-3.5" fill="currentColor" /> Duel en vedette
+              </span>
+            </div>
+          )}
           <div className="relative flex flex-col items-center gap-3 sm:gap-6 lg:flex-row lg:gap-4">
             <div className="flex flex-col w-full flex-1">
               <DuelCard
