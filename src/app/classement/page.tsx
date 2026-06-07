@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Trophy, Search, Loader2, MapPin, Navigation, Store, ChevronRight, X, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { Trophy, Search, Loader2, MapPin, Navigation, Store, ChevronRight, X, ExternalLink, Lock, Swords, PartyPopper } from "lucide-react";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
 import { useFastFoods } from "@/lib/hooks";
 import { FastFood } from "@/lib/types";
+import { getDuelsDone, consumeJustUnlocked, REQUIRED_DUELS } from "@/lib/engagement";
 
 /** Niveau de prix affiché (1..3). Défaut €€ (10-20 €) quand Google ne l'indique pas. */
 function priceLvl(ff: FastFood): number {
@@ -43,6 +45,17 @@ export default function ClassementPage() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationAsked, setLocationAsked] = useState(false);
   const [selected, setSelected] = useState<FastFood | null>(null);
+  const [duelsDone, setDuelsDone] = useState(0);
+  const [justUnlocked, setJustUnlocked] = useState(false);
+
+  useEffect(() => {
+    setDuelsDone(getDuelsDone());
+    if (consumeJustUnlocked()) {
+      setJustUnlocked(true);
+      const t = setTimeout(() => setJustUnlocked(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, []);
 
   useEffect(() => {
     if (locationAsked || typeof navigator === "undefined" || !navigator.geolocation) return;
@@ -93,6 +106,62 @@ export default function ClassementPage() {
   }, [searchQuery, category, selectedCity, viewMode, fastfoods, userLocation]);
 
   const activeCat = FOOD_CATEGORIES.find((c) => c.id === category);
+
+  // Gate engagement : le podium (top 3) est flouté tant que < 3 duels.
+  const remaining = Math.max(0, REQUIRED_DUELS - duelsDone);
+  const locked = duelsDone < REQUIRED_DUELS && !searchQuery && filtered.length > 3;
+
+  const renderRow = (ff: FastFood, i: number) => {
+    const rank = i + 1;
+    const cat = FOOD_CATEGORIES.find((c) => c.id === ff.category);
+    return (
+      <button
+        key={ff.id}
+        onClick={() => setSelected(ff)}
+        className="lb-row w-full flex items-center gap-2.5 border-b border-bd-subtle px-4 py-3 last:border-b-0 text-left"
+      >
+        <span className={`w-6 shrink-0 text-center font-mono text-sm font-bold ${
+          rank === 1 ? "text-gld" : rank === 2 ? "text-slv" : rank === 3 ? "text-brz" : "text-mt"
+        }`}>
+          {rank}
+        </span>
+
+        <div
+          className="flex h-8 min-w-9 shrink-0 items-center justify-center rounded-md bg-sf-alt border border-bd-subtle px-1.5 font-mono text-[11px] font-bold"
+          title={`Niveau de prix : ${"€".repeat(priceLvl(ff))}`}
+        >
+          <span className="text-gld">{"€".repeat(priceLvl(ff))}</span>
+          <span className="text-mt/25">{"€".repeat(3 - priceLvl(ff))}</span>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] font-medium truncate flex items-center gap-1.5">
+            <span className="truncate">{ff.name}</span>
+            {ff.is_franchise && (
+              <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-gld px-1 py-px text-[10px] font-semibold text-black">
+                <Store className="h-2.5 w-2.5" /> Franchise
+              </span>
+            )}
+          </p>
+          <p className="text-[11px] text-mt truncate">
+            {ff.neighborhood || ff.chain}
+            {cat && (
+              <span className="ml-1.5 inline-flex items-center gap-0.5 rounded bg-sf border border-bd-subtle px-1 py-px text-[10px]">
+                {cat.emoji} {viewMode !== "category" && cat.label}
+              </span>
+            )}
+            {viewMode === "nearby" && userLocation && (
+              <span className="ml-1.5 text-[10px] text-mt/70">
+                {distanceKm(userLocation.lat, userLocation.lng, ff.location.latitude, ff.location.longitude).toFixed(1)} km
+              </span>
+            )}
+          </p>
+        </div>
+
+        <ChevronRight className="h-4 w-4 shrink-0 text-mt/40" />
+      </button>
+    );
+  };
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -217,62 +286,42 @@ export default function ClassementPage() {
             <Trophy className="h-6 w-6 mb-2 opacity-30" />
             <p className="text-sm">Aucun résultat</p>
           </div>
+        ) : locked ? (
+          <>
+            {/* Podium flouté à débloquer */}
+            <div className="relative">
+              <div className="blur-[7px] pointer-events-none select-none" aria-hidden>
+                {filtered.slice(0, 3).map((ff, i) => renderRow(ff, i))}
+              </div>
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+                <Lock className="h-6 w-6 text-gld" />
+                <p className="text-sm font-bold">🏆 Débloque le podium</p>
+                <p className="text-xs text-mt">
+                  Fais {remaining} duel{remaining > 1 ? "s" : ""} pour révéler le top 3
+                </p>
+                <Link
+                  href="/duel"
+                  className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg bg-gld px-4 py-2 text-sm font-semibold text-black transition-transform hover:scale-[1.03]"
+                >
+                  <Swords className="h-4 w-4" /> Faire un duel
+                </Link>
+              </div>
+            </div>
+            {filtered.slice(3).map((ff, i) => renderRow(ff, i + 3))}
+          </>
         ) : (
-          filtered.map((ff, i) => {
-          const rank = i + 1;
-          const cat = FOOD_CATEGORIES.find((c) => c.id === ff.category);
-
-          return (
-            <button
-              key={ff.id}
-              onClick={() => setSelected(ff)}
-              className="lb-row w-full flex items-center gap-2.5 border-b border-bd-subtle px-4 py-3 last:border-b-0 text-left"
-            >
-              <span className={`w-6 shrink-0 text-center font-mono text-sm font-bold ${
-                rank === 1 ? "text-gld" : rank === 2 ? "text-slv" : rank === 3 ? "text-brz" : "text-mt"
-              }`}>
-                {rank}
-              </span>
-
-              <div
-                className="flex h-8 min-w-9 shrink-0 items-center justify-center rounded-md bg-sf-alt border border-bd-subtle px-1.5 font-mono text-[11px] font-bold"
-                title={`Niveau de prix : ${"€".repeat(priceLvl(ff))}`}
-              >
-                <span className="text-gld">{"€".repeat(priceLvl(ff))}</span>
-                <span className="text-mt/25">{"€".repeat(3 - priceLvl(ff))}</span>
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-medium truncate flex items-center gap-1.5">
-                  <span className="truncate">{ff.name}</span>
-                  {ff.is_franchise && (
-                    <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-gld px-1 py-px text-[10px] font-semibold text-black">
-                      <Store className="h-2.5 w-2.5" /> Franchise
-                    </span>
-                  )}
-                </p>
-                <p className="text-[11px] text-mt truncate">
-                  {ff.neighborhood || ff.chain}
-                  {cat && (
-                    <span className="ml-1.5 inline-flex items-center gap-0.5 rounded bg-sf border border-bd-subtle px-1 py-px text-[10px]">
-                      {cat.emoji} {viewMode !== "category" && cat.label}
-                    </span>
-                  )}
-                  {viewMode === "nearby" && userLocation && (
-                    <span className="ml-1.5 text-[10px] text-mt/70">
-                      {distanceKm(userLocation.lat, userLocation.lng, ff.location.latitude, ff.location.longitude).toFixed(1)} km
-                    </span>
-                  )}
-                </p>
-              </div>
-
-              <ChevronRight className="h-4 w-4 shrink-0 text-mt/40" />
-            </button>
-          );
-        })
+          filtered.map((ff, i) => renderRow(ff, i))
         )}
         </div>
       </div>
+
+      {justUnlocked && (
+        <div className="fixed inset-x-0 top-20 z-50 flex justify-center px-4 pointer-events-none">
+          <div className="flex items-center gap-2 rounded-full border border-gld/50 bg-gld/15 px-4 py-2 text-sm font-semibold text-gld shadow-xl backdrop-blur-md animate-fade-in-scale">
+            <PartyPopper className="h-4 w-4" /> Podium débloqué !
+          </div>
+        </div>
+      )}
 
       {selected && (
         <SpotModal spot={selected} userLocation={userLocation} onClose={() => setSelected(null)} />

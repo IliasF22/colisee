@@ -9,6 +9,7 @@ import { calculateElo } from "@/lib/elo";
 import { FastFood } from "@/lib/types";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
 import { useFastFoods } from "@/lib/hooks";
+import { incrementDuelsDone } from "@/lib/engagement";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -114,6 +115,7 @@ function DuelContent() {
 
       setResult({ winnerId, delta: winnerDelta });
       setTotalVotes((v) => v + 1);
+      incrementDuelsDone();
 
       try {
         const winnerRef = doc(db, "fastfoods", winner.id);
