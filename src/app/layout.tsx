@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL, SEO_CATEGORIES } from "@/lib/seo";
 import { Geist, Geist_Mono, Cinzel } from "next/font/google";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,9 +30,39 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
-  title: "Colisée — L'arène des fast-foods",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Colisée — Le classement des fast-foods en France",
+    template: "%s",
+  },
   description:
-    "Comparez, classez et géolocalisez vos fast-foods préférés dans des duels épiques.",
+    "Le classement des meilleurs fast-foods de France (kebab, smash burger, tacos, poulet frit…) élu en duels par la communauté. Trouve le top près de chez toi.",
+  applicationName: "Colisée",
+  keywords: [
+    "classement fast-food",
+    "meilleur kebab",
+    "meilleur smash burger",
+    "meilleur tacos",
+    "fast food France",
+    "Colisée",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "Colisée",
+    title: "Colisée — Le classement des fast-foods en France",
+    description:
+      "Le classement des meilleurs fast-foods de France, élu en duels par la communauté.",
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Colisée — Le classement des fast-foods en France",
+    description:
+      "Le classement des meilleurs fast-foods de France, élu en duels par la communauté.",
+  },
+  robots: { index: true, follow: true },
 };
 
 const navItems = [
@@ -114,9 +145,22 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
 
           <footer className="border-t border-bd">
-            <div className="mx-auto flex h-10 max-w-7xl items-center justify-between px-5">
-              <p className="text-[11px] text-mt">© {new Date().getFullYear()} Colisée</p>
-              <p className="text-[11px] text-mt font-mono">v0.2.0</p>
+            <div className="mx-auto max-w-7xl px-5 py-5">
+              <nav aria-label="Classements par catégorie" className="flex flex-wrap gap-x-4 gap-y-1.5">
+                {SEO_CATEGORIES.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/classement/${c.id}`}
+                    className="text-[12px] text-mt transition-colors hover:text-fg"
+                  >
+                    {c.emoji} Top {c.label}
+                  </Link>
+                ))}
+              </nav>
+              <div className="mt-4 flex items-center justify-between border-t border-bd pt-3">
+                <p className="text-[11px] text-mt">© {new Date().getFullYear()} Colisée</p>
+                <p className="text-[11px] text-mt font-mono">v0.2.0</p>
+              </div>
             </div>
           </footer>
             </LocationProvider>
