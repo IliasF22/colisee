@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation, Store, Crown, Star } from "lucide-react";
+import { RotateCcw, TrendingUp, TrendingDown, Flame, Loader2, ExternalLink, X, HelpCircle, Navigation, Store, Crown, Star, Shield } from "lucide-react";
 import { getRandomDuel } from "@/lib/duel-utils";
 import { useLocationContext } from "@/lib/LocationContext";
 import { calculateElo } from "@/lib/elo";
@@ -10,6 +10,8 @@ import { FastFood } from "@/lib/types";
 import { FOOD_CATEGORIES, FoodCategoryId } from "@/lib/categories";
 import { useFastFoods } from "@/lib/hooks";
 import { incrementDuelsDone } from "@/lib/engagement";
+import { recordVote, classifyVote, type VoteFeedback } from "@/lib/votes";
+import { GladiatorProfile } from "@/components/GladiatorProfile";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -61,6 +63,8 @@ function DuelContent() {
   const [totalVotes, setTotalVotes] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [inspectedSpot, setInspectedSpot] = useState<FastFood | null>(null);
+  const [voteFeedback, setVoteFeedback] = useState<VoteFeedback | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
   const { userLocation, label } = useLocationContext();
   const [nearbyMode, setNearbyMode] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
@@ -131,6 +135,9 @@ function DuelContent() {
       setResult({ winnerId, delta: winnerDelta });
       setTotalVotes((v) => v + 1);
       incrementDuelsDone();
+      // Hook « tes votes vs la foule » : favori de l'arène ou outsider ?
+      recordVote(winner.elo_score, loser.elo_score, category);
+      setVoteFeedback(classifyVote(winner.elo_score, loser.elo_score));
 
       try {
         const winnerRef = doc(db, "fastfoods", winner.id);
@@ -155,6 +162,7 @@ function DuelContent() {
       setTimeout(() => {
         setSelectedId(null);
         setResult(null);
+        setVoteFeedback(null);
         setIsAnimating(false);
         setIsFeatured(false);
         setDuel(getRandomDuel(fastfoods, category, activeLocation));
@@ -182,12 +190,19 @@ function DuelContent() {
     <div className="mx-auto max-w-5xl px-5 py-4 sm:py-8">
       {/* Header */}
       <div className="mb-3 sm:mb-6">
-        <div className="flex items-center gap-3 mb-1">
+        <div className="flex items-center gap-2 sm:gap-3 mb-1">
           <h1 className="text-2xl font-bold font-cinzel tracking-wide">L&apos;Arène</h1>
           <span className="inline-flex items-center gap-1 rounded-md bg-gld/10 px-2 py-0.5 text-[11px] text-gld border border-gld/40">
             <Flame className="h-3 w-3" />
             {totalVotes} vote{totalVotes !== 1 ? "s" : ""}
           </span>
+          <button
+            onClick={() => setShowProfile(true)}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-bd px-2.5 py-1 text-[12px] text-mt transition-colors hover:bg-sf-hover hover:text-fg"
+          >
+            <Shield className="h-3.5 w-3.5 text-gld" />
+            Mon profil
+          </button>
         </div>
         <p className="hidden sm:block text-sm text-mt">Qui mérite la couronne ? Cliquez sur votre favori.</p>
       </div>
@@ -291,9 +306,31 @@ function DuelContent() {
         </>
       )}
 
+      {/* Hook : feedback instantané « tes votes vs la foule » */}
+      {voteFeedback && (
+        <div className="pointer-events-none fixed left-1/2 top-20 z-50 -translate-x-1/2 animate-slide-up">
+          <div
+            className={`flex items-center gap-2.5 rounded-full border px-4 py-2 shadow-lg backdrop-blur-md ${
+              voteFeedback.consensus
+                ? "border-gld/40 bg-gld/10"
+                : "border-bd bg-sf/95"
+            }`}
+          >
+            <span className="text-xl">{voteFeedback.emoji}</span>
+            <div className="text-left leading-tight">
+              <p className={`text-[13px] font-bold ${voteFeedback.consensus ? "text-gld" : "text-fg"}`}>
+                {voteFeedback.title}
+              </p>
+              <p className="text-[11px] text-mt">{voteFeedback.sub}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {inspectedSpot && (
         <SpotModal spot={inspectedSpot} onClose={() => setInspectedSpot(null)} />
       )}
+      {showProfile && <GladiatorProfile onClose={() => setShowProfile(false)} />}
     </div>
   );
 }
