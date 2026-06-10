@@ -157,8 +157,16 @@ export default function RootLayout({
                   </Link>
                 ))}
               </nav>
-              <div className="mt-4 flex items-center justify-between border-t border-bd pt-3">
-                <p className="text-[11px] text-mt">© {new Date().getFullYear()} Colisée</p>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-bd pt-3">
+                <div className="flex items-center gap-3">
+                  <p className="text-[11px] text-mt">© {new Date().getFullYear()} Colisée</p>
+                  <Link href="/mentions-legales" className="text-[11px] text-mt transition-colors hover:text-fg">
+                    Mentions légales
+                  </Link>
+                  <Link href="/confidentialite" className="text-[11px] text-mt transition-colors hover:text-fg">
+                    Confidentialité
+                  </Link>
+                </div>
                 <p className="text-[11px] text-mt font-mono">v0.2.0</p>
               </div>
             </div>
