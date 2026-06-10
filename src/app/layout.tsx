@@ -36,10 +36,13 @@ export const metadata: Metadata = {
     template: "%s",
   },
   description:
-    "Le classement des meilleurs fast-foods de France (kebab, smash burger, tacos, poulet frit…) élu en duels par la communauté. Trouve le top près de chez toi.",
+    "Le classement des meilleurs fast-foods et de la restauration rapide en France (kebab, smash burger, tacos, poulet frit…), élu en duels par la communauté. Trouve le top près de chez toi.",
   applicationName: "Colisée",
   keywords: [
     "classement fast-food",
+    "classement fast food",
+    "restauration rapide",
+    "meilleur fast food",
     "meilleur kebab",
     "meilleur smash burger",
     "meilleur tacos",

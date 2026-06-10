@@ -1,15 +1,40 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { SITE_NAME, SITE_URL, SEO_CATEGORIES } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 export default function HomePage() {
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE_NAME,
+      alternateName: "Colisée Food",
+      url: SITE_URL,
+      inLanguage: "fr-FR",
+      description:
+        "Le classement des meilleurs fast-foods (restauration rapide) de France, élu en duels par la communauté.",
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: `${SITE_URL}/images/logo-noir.png`,
+    },
+  ];
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-6rem)] px-6">
-      <div className="flex flex-col items-center text-center max-w-xl animate-fade-in">
+    <div className="flex flex-col items-center px-6">
+      <JsonLd data={jsonLd} />
+
+      {/* Hero */}
+      <div className="flex min-h-[calc(100vh-12rem)] flex-col items-center justify-center text-center max-w-xl animate-fade-in">
         <div className="relative mb-8">
           <Image
             src="/images/logo-noir.png"
-            alt="Colisée"
+            alt="Colisée — classement des fast-foods"
             width={256}
             height={256}
             className="h-40 w-auto dark:hidden"
@@ -17,7 +42,7 @@ export default function HomePage() {
           />
           <Image
             src="/images/logo-blanc.png"
-            alt="Colisée"
+            alt="Colisée — classement des fast-foods"
             width={256}
             height={256}
             className="hidden h-40 w-auto dark:block"
@@ -28,7 +53,8 @@ export default function HomePage() {
           Colisée
         </h1>
         <p className="mt-4 text-mt text-lg max-w-md">
-          Votez pour vos fast-foods préférés. Classez-les. Trouvez les meilleurs.
+          Le classement des meilleurs fast-foods de France. Votez en duels,
+          classez la restauration rapide, trouvez le top près de chez vous.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row gap-3">
           <Link
@@ -46,6 +72,32 @@ export default function HomePage() {
           </Link>
         </div>
       </div>
+
+      {/* Section SEO : contenu indexable + maillage interne */}
+      <section className="w-full max-w-2xl pb-16 text-center">
+        <h2 className="font-cinzel text-2xl font-bold tracking-wide">
+          Le classement de la restauration rapide
+        </h2>
+        <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-mt">
+          {SITE_NAME} est le grand classement des fast-foods en France : kebab,
+          smash burger, tacos, poulet frit, pizza, sandwich… Chaque adresse
+          s’affronte en duel et grimpe (ou chute) au classement selon vos votes.
+          Pas besoin de compte pour voter — découvrez les meilleurs spots de
+          restauration rapide, ville par ville.
+        </p>
+
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {SEO_CATEGORIES.map((c) => (
+            <Link
+              key={c.id}
+              href={`/classement/${c.id}`}
+              className="rounded-full border border-bd px-3.5 py-1.5 text-[13px] text-mt transition-colors hover:bg-sf-hover hover:text-fg"
+            >
+              {c.emoji} Meilleurs {c.label.toLowerCase()}
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
